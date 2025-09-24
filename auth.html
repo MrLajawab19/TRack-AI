@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Signup - TrackAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#3b82f6',
+                        dark: '#1e1e1e',
+                        'dark-light': '#2b2b2b'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #8b5cf6 100%);
+        }
+        .auth-card {
+            backdrop-filter: blur(10px);
+            background: rgba(30, 30, 30, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .form-transition {
+            transition: all 0.3s ease-in-out;
+        }
+        .tab-active {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+        }
+        .tab-inactive {
+            background: rgba(75, 85, 99, 0.5);
+            color: #d4d4d4;
+        }
+        .input-focus:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .google-btn {
+            background: white;
+            color: #1f2937;
+            transition: all 0.3s ease;
+        }
+        .google-btn:hover {
+            background: #f9fafb;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        .auth-btn {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            transition: all 0.3s ease;
+        }
+        .auth-btn:hover {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+        .form-slide-enter {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        .form-slide-active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+        
+        // Firebase configuration (replace with your config)
+        const firebaseConfig = {
+            apiKey: "your-api-key",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+        
+        // Make auth functions globally available
+        window.auth = auth;
+        window.provider = provider;
+        window.signInWithPopup = signInWithPopup;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.signOut = signOut;
+        window.onAuthStateChanged = onAuthStateChanged;
+    </script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 w-full bg-gray-900/95 backdrop-blur-md z-50 border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo/Brand -->
+                <div class="flex-shrink-0">
+                    <a href="index.html" class="text-2xl font-bold text-blue-400 hover:text-blue-300 transition-colors">
+                        <i class="fas fa-train mr-2"></i>TrackAI
+                    </a>
+                </div>
+                
+                <!-- Navigation Links -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="index.html#home" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-all duration-300">Home</a>
+                        <a href="index.html#about" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-all duration-300">About</a>
+                        <a href="index.html#dashboard" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-all duration-300">Dashboard</a>
+                        <a href="index.html#train-status" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-all duration-300">Train Status</a>
+                        <a href="index.html#live-map" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-all duration-300">Live Map</a>
+                        <a href="index.html#team" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-all duration-300">Team</a>
+                        <a href="auth.html" class="nav-link px-3 py-2 rounded-md text-sm font-medium bg-gray-700 text-white transition-all duration-300">Login</a>
+                    </div>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-800">
+                <a href="index.html#home" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Home</a>
+                <a href="index.html#about" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">About</a>
+                <a href="index.html#dashboard" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Dashboard</a>
+                <a href="index.html#train-status" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Train Status</a>
+                <a href="index.html#live-map" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Live Map</a>
+                <a href="index.html#team" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Team</a>
+                <a href="auth.html" class="block px-3 py-2 rounded-md text-base font-medium bg-gray-700 text-white">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Authentication Section -->
+    <section class="min-h-screen flex items-center justify-center hero-gradient pt-16">
+        <div class="max-w-md w-full mx-4">
+            <!-- Authentication Card -->
+            <div class="auth-card rounded-2xl p-8 shadow-2xl">
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <div class="text-blue-400 text-4xl mb-4">
+                        <i class="fas fa-train"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-white mb-2">Welcome to TrackAI</h1>
+                    <p class="text-gray-300">Smart Train Traffic Control System</p>
+                </div>
+
+                <!-- Tab Toggle -->
+                <div class="flex mb-8 bg-gray-800 rounded-lg p-1">
+                    <button 
+                        id="loginTab" 
+                        class="flex-1 py-3 px-4 rounded-md text-sm font-medium transition-all duration-300 tab-active"
+                        onclick="switchTab('login')"
+                    >
+                        <i class="fas fa-sign-in-alt mr-2"></i>Login
+                    </button>
+                    <button 
+                        id="signupTab" 
+                        class="flex-1 py-3 px-4 rounded-md text-sm font-medium transition-all duration-300 tab-inactive"
+                        onclick="switchTab('signup')"
+                    >
+                        <i class="fas fa-user-plus mr-2"></i>Signup
+                    </button>
+                </div>
+
+                <!-- Login Form -->
+                <div id="loginForm" class="form-transition form-slide-active">
+                    <form onsubmit="handleLogin(event)">
+                        <div class="space-y-6">
+                            <!-- Email -->
+                            <div>
+                                <label for="loginEmail" class="block text-sm font-medium text-gray-300 mb-2">
+                                    <i class="fas fa-envelope mr-2"></i>Email Address
+                                </label>
+                                <input 
+                                    type="email" 
+                                    id="loginEmail" 
+                                    required
+                                    class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 input-focus focus:outline-none transition-all duration-300"
+                                    placeholder="Enter your email"
+                                >
+                            </div>
+
+                            <!-- Password -->
+                            <div>
+                                <label for="loginPassword" class="block text-sm font-medium text-gray-300 mb-2">
+                                    <i class="fas fa-lock mr-2"></i>Password
+                                </label>
+                                <div class="relative">
+                                    <input 
+                                        type="password" 
+                                        id="loginPassword" 
+                                        required
+                                        class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 input-focus focus:outline-none transition-all duration-300"
+                                        placeholder="Enter your password"
+                                    >
+                                    <button 
+                                        type="button" 
+                                        onclick="togglePassword('loginPassword')"
+                                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                                    >
+                                        <i class="fas fa-eye" id="loginPasswordIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Remember Me & Forgot Password -->
+                            <div class="flex items-center justify-between">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500 focus:ring-offset-gray-800">
+                                    <span class="ml-2 text-sm text-gray-300">Remember me</span>
+                                </label>
+                                <a href="#" class="text-sm text-blue-400 hover:text-blue-300 transition-colors">Forgot password?</a>
+                            </div>
+
+                            <!-- Login Button -->
+                            <button 
+                                type="submit" 
+                                class="w-full py-3 px-4 auth-btn text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+                            >
+                                <i class="fas fa-sign-in-alt mr-2"></i>Login to TrackAI
+                            </button>
+
+                            <!-- Divider -->
+                            <div class="relative my-6">
+                                <div class="absolute inset-0 flex items-center">
+                                    <div class="w-full border-t border-gray-600"></div>
+                                </div>
+                                <div class="relative flex justify-center text-sm">
+                                    <span class="px-2 bg-gray-900 text-gray-400">Or continue with</span>
+                                </div>
+                            </div>
+
+                            <!-- Google Login -->
+                            <button 
+                                type="button" 
+                                onclick="loginWithGoogle()"
+                                class="w-full py-3 px-4 google-btn font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800 flex items-center justify-center"
+                            >
+                                <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                                </svg>
+                                Login with Google
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Signup Form -->
+                <div id="signupForm" class="form-transition form-slide-enter hidden">
+                    <form onsubmit="handleSignup(event)">
+                        <div class="space-y-6">
+                            <!-- Full Name -->
+                            <div>
+                                <label for="signupName" class="block text-sm font-medium text-gray-300 mb-2">
+                                    <i class="fas fa-user mr-2"></i>Full Name
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="signupName" 
+                                    required
+                                    class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 input-focus focus:outline-none transition-all duration-300"
+                                    placeholder="Enter your full name"
+                                >
+                            </div>
+
+                            <!-- Email -->
+                            <div>
+                                <label for="signupEmail" class="block text-sm font-medium text-gray-300 mb-2">
+                                    <i class="fas fa-envelope mr-2"></i>Email Address
+                                </label>
+                                <input 
+                                    type="email" 
+                                    id="signupEmail" 
+                                    required
+                                    class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 input-focus focus:outline-none transition-all duration-300"
+                                    placeholder="Enter your email"
+                                >
+                            </div>
+
+                            <!-- Password -->
+                            <div>
+                                <label for="signupPassword" class="block text-sm font-medium text-gray-300 mb-2">
+                                    <i class="fas fa-lock mr-2"></i>Password
+                                </label>
+                                <div class="relative">
+                                    <input 
+                                        type="password" 
+                                        id="signupPassword" 
+                                        required
+                                        minlength="6"
+                                        class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 input-focus focus:outline-none transition-all duration-300"
+                                        placeholder="Create a password (min 6 characters)"
+                                    >
+                                    <button 
+                                        type="button" 
+                                        onclick="togglePassword('signupPassword')"
+                                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                                    >
+                                        <i class="fas fa-eye" id="signupPasswordIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div>
+                                <label for="confirmPassword" class="block text-sm font-medium text-gray-300 mb-2">
+                                    <i class="fas fa-lock mr-2"></i>Confirm Password
+                                </label>
+                                <div class="relative">
+                                    <input 
+                                        type="password" 
+                                        id="confirmPassword" 
+                                        required
+                                        class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 input-focus focus:outline-none transition-all duration-300"
+                                        placeholder="Confirm your password"
+                                    >
+                                    <button 
+                                        type="button" 
+                                        onclick="togglePassword('confirmPassword')"
+                                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                                    >
+                                        <i class="fas fa-eye" id="confirmPasswordIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Terms and Conditions -->
+                            <div class="flex items-start">
+                                <input type="checkbox" id="termsCheckbox" required class="mt-1 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500 focus:ring-offset-gray-800">
+                                <label for="termsCheckbox" class="ml-2 text-sm text-gray-300">
+                                    I agree to the <a href="#" class="text-blue-400 hover:text-blue-300">Terms of Service</a> and <a href="#" class="text-blue-400 hover:text-blue-300">Privacy Policy</a>
+                                </label>
+                            </div>
+
+                            <!-- Signup Button -->
+                            <button 
+                                type="submit" 
+                                class="w-full py-3 px-4 auth-btn text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+                            >
+                                <i class="fas fa-user-plus mr-2"></i>Create TrackAI Account
+                            </button>
+
+                            <!-- Divider -->
+                            <div class="relative my-6">
+                                <div class="absolute inset-0 flex items-center">
+                                    <div class="w-full border-t border-gray-600"></div>
+                                </div>
+                                <div class="relative flex justify-center text-sm">
+                                    <span class="px-2 bg-gray-900 text-gray-400">Or continue with</span>
+                                </div>
+                            </div>
+
+                            <!-- Google Signup -->
+                            <button 
+                                type="button" 
+                                onclick="signupWithGoogle()"
+                                class="w-full py-3 px-4 google-btn font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800 flex items-center justify-center"
+                            >
+                                <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                                </svg>
+                                Signup with Google
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Loading State -->
+                <div id="authLoading" class="hidden text-center py-8">
+                    <i class="fas fa-spinner fa-spin text-3xl text-blue-400 mb-4"></i>
+                    <p class="text-gray-300">Processing...</p>
+                </div>
+
+                <!-- Error Message -->
+                <div id="authError" class="hidden bg-red-900/50 border border-red-500 rounded-lg p-4 mt-6">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-triangle text-red-400 mr-3"></i>
+                        <span class="text-red-200" id="authErrorMessage">Error message</span>
+                    </div>
+                </div>
+
+                <!-- Success Message -->
+                <div id="authSuccess" class="hidden bg-green-900/50 border border-green-500 rounded-lg p-4 mt-6">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-400 mr-3"></i>
+                        <span class="text-green-200" id="authSuccessMessage">Success message</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Text -->
+            <div class="text-center mt-8">
+                <p class="text-gray-400 text-sm">
+                    © 2025 TrackAI. Built for SIH 2025 - Problem Statement 25022
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Global variables
+        let currentTab = 'login';
+
+        // Tab switching functionality
+        function switchTab(tab) {
+            const loginTab = document.getElementById('loginTab');
+            const signupTab = document.getElementById('signupTab');
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+
+            // Clear any messages
+            hideMessages();
+
+            if (tab === 'login') {
+                // Update tabs
+                loginTab.className = loginTab.className.replace('tab-inactive', 'tab-active');
+                signupTab.className = signupTab.className.replace('tab-active', 'tab-inactive');
+                
+                // Show/hide forms with animation
+                signupForm.classList.add('form-slide-enter');
+                signupForm.classList.remove('form-slide-active');
+                setTimeout(() => {
+                    signupForm.classList.add('hidden');
+                    loginForm.classList.remove('hidden');
+                    setTimeout(() => {
+                        loginForm.classList.add('form-slide-active');
+                        loginForm.classList.remove('form-slide-enter');
+                    }, 50);
+                }, 150);
+                
+                currentTab = 'login';
+            } else {
+                // Update tabs
+                signupTab.className = signupTab.className.replace('tab-inactive', 'tab-active');
+                loginTab.className = loginTab.className.replace('tab-active', 'tab-inactive');
+                
+                // Show/hide forms with animation
+                loginForm.classList.add('form-slide-enter');
+                loginForm.classList.remove('form-slide-active');
+                setTimeout(() => {
+                    loginForm.classList.add('hidden');
+                    signupForm.classList.remove('hidden');
+                    setTimeout(() => {
+                        signupForm.classList.add('form-slide-active');
+                        signupForm.classList.remove('form-slide-enter');
+                    }, 50);
+                }, 150);
+                
+                currentTab = 'signup';
+            }
+        }
+
+        // Password visibility toggle
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(inputId + 'Icon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        // Show loading state
+        function showLoading() {
+            document.getElementById('authLoading').classList.remove('hidden');
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('signupForm').classList.add('hidden');
+        }
+
+        // Hide loading state
+        function hideLoading() {
+            document.getElementById('authLoading').classList.add('hidden');
+            if (currentTab === 'login') {
+                document.getElementById('loginForm').classList.remove('hidden');
+            } else {
+                document.getElementById('signupForm').classList.remove('hidden');
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('authError');
+            const errorMessage = document.getElementById('authErrorMessage');
+            errorMessage.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            const successDiv = document.getElementById('authSuccess');
+            const successMessage = document.getElementById('authSuccessMessage');
+            successMessage.textContent = message;
+            successDiv.classList.remove('hidden');
+        }
+
+        // Hide all messages
+        function hideMessages() {
+            document.getElementById('authError').classList.add('hidden');
+            document.getElementById('authSuccess').classList.add('hidden');
+        }
+
+        // Handle login form submission
+        async function handleLogin(event) {
+            event.preventDefault();
+            hideMessages();
+            showLoading();
+
+            const rawEmail = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const email = (rawEmail || '').trim().toLowerCase();
+
+            try {
+                // Check for mock admin credentials (case-insensitive, trims spaces)
+                if (email === 'admin@example.com' && password === 'password123') {
+                    showSuccess('Admin login successful! Redirecting to Traffic Controller Dashboard...');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1200);
+                    return;
+                }
+
+                // Try Firebase authentication
+                if (window.signInWithEmailAndPassword && window.auth) {
+                    const userCredential = await window.signInWithEmailAndPassword(window.auth, rawEmail, password);
+                    showSuccess('Login successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1200);
+                } else {
+                    // Fallback demo login
+                    simulateLogin(rawEmail);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                // If Firebase fails but mock credentials were entered, still allow access
+                if (email === 'admin@example.com' && password === 'password123') {
+                    showSuccess('Offline mode: Admin access granted. Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1200);
+                } else {
+                    showError(error.message || 'Login failed. Please check your credentials.');
+                }
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Handle signup form submission
+        async function handleSignup(event) {
+            event.preventDefault();
+            hideMessages();
+
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                // Try Firebase authentication
+                if (window.createUserWithEmailAndPassword && window.auth) {
+                    const userCredential = await window.createUserWithEmailAndPassword(window.auth, email, password);
+                    showSuccess('Account created successfully! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                } else {
+                    // Fallback demo signup
+                    simulateSignup(name, email);
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                showError(error.message || 'Signup failed. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Google login
+        async function loginWithGoogle() {
+            hideMessages();
+            showLoading();
+
+            try {
+                if (window.signInWithPopup && window.auth && window.provider) {
+                    const result = await window.signInWithPopup(window.auth, window.provider);
+                    showSuccess('Google login successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                } else {
+                    // Fallback demo login
+                    simulateGoogleAuth('login');
+                }
+            } catch (error) {
+                console.error('Google login error:', error);
+                showError('Google login failed. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Google signup
+        async function signupWithGoogle() {
+            hideMessages();
+            showLoading();
+
+            try {
+                if (window.signInWithPopup && window.auth && window.provider) {
+                    const result = await window.signInWithPopup(window.auth, window.provider);
+                    showSuccess('Google signup successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                } else {
+                    // Fallback demo signup
+                    simulateGoogleAuth('signup');
+                }
+            } catch (error) {
+                console.error('Google signup error:', error);
+                showError('Google signup failed. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Simulate login for demo (when Firebase is not configured)
+        function simulateLogin(email) {
+            setTimeout(() => {
+                showSuccess('Demo login successful! Redirecting...');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }, 1000);
+        }
+
+        // Simulate signup for demo (when Firebase is not configured)
+        function simulateSignup(name, email) {
+            setTimeout(() => {
+                showSuccess('Demo account created successfully! Redirecting...');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }, 1000);
+        }
+
+        // Simulate Google auth for demo
+        function simulateGoogleAuth(type) {
+            setTimeout(() => {
+                showSuccess(`Demo Google ${type} successful! Redirecting...`);
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }, 1000);
+        }
+
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check URL parameters to determine which tab to show
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            
+            if (tab === 'signup') {
+                switchTab('signup');
+            }
+            
+            // Check if user is already logged in
+            if (window.onAuthStateChanged && window.auth) {
+                window.onAuthStateChanged(window.auth, (user) => {
+                    if (user) {
+                        // User is signed in, redirect to dashboard
+                        window.location.href = 'index.html';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

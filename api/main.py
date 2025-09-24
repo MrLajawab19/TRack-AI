@@ -13,6 +13,7 @@ import uvicorn
 from models.train import Train, TrainMovement, TrainConflict, TrainType, TrainPriority
 from models.infrastructure import RailwayNetwork, TrackSection, create_sample_network
 from optimization.scheduler import TrainScheduler, RealTimeOptimizer
+from api.irctc_service import irctc_service
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -132,6 +133,79 @@ async def delete_train(train_id: str):
             "status": "success",
             "message": f"Train {train_id} removed successfully",
             "removed_train": removed_train.train_number
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# IRCTC API Integration Endpoints
+
+@app.get("/api/train/{train_no}", response_model=Dict)
+async def get_train_schedule_irctc(train_no: str):
+    """
+    Get real-time train schedule from IRCTC API
+    
+    Args:
+        train_no: Train number (e.g., "12936")
+        
+    Returns:
+        Train schedule information including stations, timings, and current status
+    """
+    try:
+        schedule_data = await irctc_service.get_train_schedule(train_no)
+        return schedule_data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching train schedule: {str(e)}")
+
+
+@app.post("/api/trains/bulk-schedule", response_model=Dict)
+async def get_multiple_train_schedules(train_numbers: List[str]):
+    """
+    Get schedules for multiple trains concurrently
+    
+    Args:
+        train_numbers: List of train numbers
+        
+    Returns:
+        Dictionary mapping train numbers to their schedule data
+    """
+    try:
+        if len(train_numbers) > 10:  # Limit to prevent abuse
+            raise HTTPException(status_code=400, detail="Maximum 10 trains allowed per request")
+        
+        schedules = await irctc_service.get_multiple_trains(train_numbers)
+        return {
+            "success": True,
+            "count": len(schedules),
+            "schedules": schedules,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching train schedules: {str(e)}")
+
+
+@app.delete("/api/train-cache", response_model=Dict)
+async def clear_train_cache():
+    """Clear the train data cache"""
+    try:
+        irctc_service.clear_cache()
+        return {
+            "status": "success",
+            "message": "Train data cache cleared successfully"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/train-cache/stats", response_model=Dict)
+async def get_cache_stats():
+    """Get cache statistics"""
+    try:
+        stats = irctc_service.get_cache_stats()
+        return {
+            "status": "success",
+            "cache_stats": stats,
+            "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
