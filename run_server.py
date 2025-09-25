@@ -16,6 +16,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Import our models
+imports_ok = True
 try:
     from models.train import Train, TrainType, TrainPriority
     from models.infrastructure import create_sample_network
@@ -23,12 +24,23 @@ try:
     print("✅ All modules imported successfully!")
 except ImportError as e:
     print(f"❌ Import error: {e}")
+    print("👉 Please install dependencies: pip install -r requirements.txt")
+    imports_ok = False
 
 # Global data
-network = create_sample_network()
-scheduler = SimpleTrainScheduler(network)
 active_trains = []
 current_schedule = None
+
+if imports_ok:
+    try:
+        network = create_sample_network()
+        scheduler = SimpleTrainScheduler(network)
+    except Exception as e:
+        print(f"❌ Failed to initialize network/scheduler: {e}")
+        imports_ok = False
+else:
+    network = None
+    scheduler = None
 
 class TrainControlHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):

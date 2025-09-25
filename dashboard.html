@@ -1,24 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrackAI - Traffic Controller Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .sidebar-transition { transition: all 0.3s ease-in-out; }
-        .card-hover { transition: all 0.2s ease-in-out; }
-        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .pulse-dot { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%); }
-        .status-running { background-color: #10b981; }
-        .status-delayed { background-color: #f59e0b; }
-        .status-scheduled { background-color: #3b82f6; }
-        .status-maintenance { background-color: #6b7280; }
-    </style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TrackAI - Traffic Controller Dashboard</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <!-- Leaflet CSS/JS for direct map integration -->
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+            crossorigin=""
+        />
+        <script
+            src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""
+        ></script>
+        <style>
+            .sidebar-transition { transition: all 0.3s ease-in-out; }
+            .card-hover { transition: all 0.2s ease-in-out; }
+            .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+            .pulse-dot { animation: pulse 2s infinite; }
+            @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+            .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%); }
+            .status-running { background-color: #10b981; }
+            .status-delayed { background-color: #f59e0b; }
+            .status-scheduled { background-color: #3b82f6; }
+            .status-maintenance { background-color: #6b7280; }
+        </style>
 </head>
 <body class="bg-gray-900 text-white">
     <!-- Navigation Sidebar -->
@@ -200,17 +212,8 @@
                         </div>
                     </div>
                     
-                    <!-- Interactive Map Placeholder -->
-                    <div id="live-map" class="bg-gray-900 rounded-lg p-8 text-center relative" style="height: 400px;">
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="text-gray-400">
-                                <i class="fas fa-map text-4xl mb-4"></i>
-                                <p>Interactive Network Map</p>
-                                <p class="text-sm">Real-time train positions and track status</p>
-                            </div>
-                        </div>
-                        <!-- Markers are injected by JS -->
-                    </div>
+                    <!-- Direct Leaflet Map Integration -->
+                    <div id="railway-map" class="bg-gray-900 rounded-lg overflow-hidden" style="height: 500px;"></div>
                 </div>
 
                 <!-- Train Legend -->
@@ -458,7 +461,7 @@
             renderSectionView();
             renderAlerts();
             initializeReportCharts();
-            renderLiveTraffic();
+            // Live traffic is initialized when section is shown
             // Timers
             setInterval(updateLastUpdated, 30000); // Update every 30 seconds
             setInterval(refreshScheduling, 30000);
@@ -483,6 +486,39 @@
             // Periodic recent activity updates
             setInterval(appendRecentActivity, 20000);
         });
+
+        // Leaflet Live Traffic Map (direct integration)
+        let __railwayMap = null;
+        let __railwayGeoLayer = null;
+        let __railwayMapInitialized = false;
+
+        function initRailwayMap() {
+            if (__railwayMapInitialized) return;
+            const container = document.getElementById('railway-map');
+            if (!container) return;
+            __railwayMap = L.map('railway-map', { zoomControl: true }).setView([27.2, 78.5], 7);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+            }).addTo(__railwayMap);
+            fetch('delhi-kanpur-railway.geojson')
+                .then(r => r.json())
+                .then(data => {
+                    __railwayGeoLayer = L.geoJSON(data, {
+                        style: { color: 'red', weight: 2 }
+                    }).addTo(__railwayMap);
+                    try {
+                        const b = __railwayGeoLayer.getBounds();
+                        if (b && b.isValid()) {
+                            __railwayMap.fitBounds(b, { padding: [20, 20] });
+                        }
+                    } catch (_) {}
+                })
+                .catch(err => console.error('Failed to load railway GeoJSON', err));
+            __railwayMapInitialized = true;
+        }
+
+        // Keep existing timer hooks happy; can be extended to refresh dynamic overlays later
+        function renderLiveTraffic() { /* no-op for now */ }
 
         // Navigation functions
         function showSection(sectionName) {
@@ -519,6 +555,11 @@
             // Update hash if needed
             if (location.hash !== '#' + sectionName) {
                 history.replaceState(null, '', '#' + sectionName);
+            }
+
+            // Initialize Leaflet map when switching to Live Traffic
+            if (sectionName === 'live-traffic') {
+                initRailwayMap();
             }
         }
 
