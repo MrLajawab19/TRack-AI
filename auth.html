@@ -546,10 +546,22 @@
             try {
                 // Check for mock admin credentials (case-insensitive, trims spaces)
                 if (email === 'admin@example.com' && password === 'password123') {
+                    // Set session storage for authentication
+                    sessionStorage.setItem('authenticated', 'true');
+                    sessionStorage.setItem('userEmail', 'admin@example.com'); // Store exact email
+                    sessionStorage.setItem('userRole', 'admin');
+                    
+                    console.log('Setting session storage:', {
+                        authenticated: 'true',
+                        userEmail: 'admin@example.com',
+                        userRole: 'admin'
+                    });
+                    
                     showSuccess('Admin login successful! Redirecting to Traffic Controller Dashboard...');
                     setTimeout(() => {
+                        console.log('Redirecting to dashboard...');
                         window.location.href = 'dashboard.html';
-                    }, 1200);
+                    }, 1500);
                     return;
                 }
 
@@ -568,10 +580,22 @@
                 console.error('Login error:', error);
                 // If Firebase fails but mock credentials were entered, still allow access
                 if (email === 'admin@example.com' && password === 'password123') {
+                    // Set session storage for authentication
+                    sessionStorage.setItem('authenticated', 'true');
+                    sessionStorage.setItem('userEmail', 'admin@example.com'); // Store exact email
+                    sessionStorage.setItem('userRole', 'admin');
+                    
+                    console.log('Offline mode - Setting session storage:', {
+                        authenticated: 'true',
+                        userEmail: 'admin@example.com',
+                        userRole: 'admin'
+                    });
+                    
                     showSuccess('Offline mode: Admin access granted. Redirecting...');
                     setTimeout(() => {
+                        console.log('Offline mode - Redirecting to dashboard...');
                         window.location.href = 'dashboard.html';
-                    }, 1200);
+                    }, 1500);
                 } else {
                     showError(error.message || 'Login failed. Please check your credentials.');
                 }

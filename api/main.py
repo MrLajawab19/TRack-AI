@@ -14,6 +14,7 @@ from models.train import Train, TrainMovement, TrainConflict, TrainType, TrainPr
 from models.infrastructure import RailwayNetwork, TrackSection, create_sample_network
 from optimization.scheduler import TrainScheduler, RealTimeOptimizer
 from api.irctc_service import irctc_service
+from api.mock_data import mock_trains
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -140,22 +141,11 @@ async def delete_train(train_id: str):
 
 # IRCTC API Integration Endpoints
 
-@app.get("/api/train/{train_no}", response_model=Dict)
-async def get_train_schedule_irctc(train_no: str):
-    """
-    Get real-time train schedule from IRCTC API
-    
-    Args:
-        train_no: Train number (e.g., "12936")
-        
-    Returns:
-        Train schedule information including stations, timings, and current status
-    """
-    try:
-        schedule_data = await irctc_service.get_train_schedule(train_no)
-        return schedule_data
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching train schedule: {str(e)}")
+@app.get("/api/train/{train_no}")
+async def get_train_schedule_mock(train_no: str):
+    if train_no in mock_trains:
+        return mock_trains[train_no]
+    return {"error": "Train not found", "trainNo": train_no}
 
 
 @app.post("/api/trains/bulk-schedule", response_model=Dict)

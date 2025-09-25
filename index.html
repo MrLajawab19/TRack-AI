@@ -30,6 +30,13 @@
         .hero-gradient {
             background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #8b5cf6 100%);
         }
+        .custom-div-icon {
+            background: transparent !important;
+            border: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
     
     <!-- Firebase SDK -->
@@ -59,6 +66,18 @@
         window.signOut = signOut;
         window.onAuthStateChanged = onAuthStateChanged;
     </script>
+    <!-- Leaflet for live train mini-map -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
 </head>
 <body class="bg-gray-900 text-white">
     <!-- Navigation Bar -->
@@ -350,10 +369,74 @@
                             Show Station Details
                         </button>
                     </div>
+
+                    <!-- Live Train Module: Map + Status -->
+                    <div id="liveTrainModule" class="hidden bg-gray-600 rounded-lg p-6 mb-6">
+                        <h5 class="text-lg font-semibold text-white mb-4">Live Train Module</h5>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Mini Map -->
+                            <div>
+                                <div id="trainMiniMap" class="rounded-lg overflow-hidden border border-gray-600" style="height: 280px; background:#374151;"></div>
+                                <p class="mt-2 text-sm text-gray-300" id="liveLocationText">Live location will appear here when available.</p>
+                            </div>
+                            <!-- Status & Timing -->
+                            <div class="space-y-4">
+                                <div class="bg-gray-500/40 rounded-lg p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-gray-300 text-sm">Most Recent Station</p>
+                                            <p class="text-white font-semibold" id="recentStationName">—</p>
+                                        </div>
+                                        <span id="delayBadge" class="px-3 py-1 rounded-full text-sm font-medium">—</span>
+                                    </div>
+                                    <div class="mt-3 grid grid-cols-2 gap-3 text-sm">
+                                        <div>
+                                            <p class="text-gray-300">Scheduled Dep.</p>
+                                            <p class="text-white font-medium" id="scheduledDep">—</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-300">Actual Dep.</p>
+                                            <p class="text-white font-medium" id="actualDep">—</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 text-sm text-gray-300" id="delayReason">—</div>
+                                </div>
+                                
+                                <!-- Detailed Delay Information -->
+                                <div id="delayDetails" class="hidden bg-red-900/20 border border-red-500/30 rounded-lg p-4">
+                                    <h6 class="text-red-400 font-semibold text-sm mb-2">
+                                        <i class="fas fa-exclamation-triangle mr-2"></i>Delay Information
+                                    </h6>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-300">Current Delay:</span>
+                                            <span class="text-red-400 font-medium" id="currentDelay">—</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-300">Expected Recovery:</span>
+                                            <span class="text-yellow-400 font-medium" id="expectedRecovery">—</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-300">Next Departure:</span>
+                                            <span class="text-blue-400 font-medium" id="nextDeparture">—</span>
+                                        </div>
+                                        <div class="mt-3 p-2 bg-gray-700/50 rounded text-xs">
+                                            <span class="text-gray-400">Reason: </span>
+                                            <span class="text-gray-200" id="delayReasonDetail">—</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="text-xs text-gray-400">Data source: Mock data for demo</div>
+                            </div>
+                        </div>
+                    </div>
                     
                     <!-- Station Details -->
                     <div id="stationDetails" class="hidden bg-gray-600 rounded-lg p-6">
-                        <h5 class="text-lg font-semibold text-white mb-4">Station Schedule</h5>
+                        <h5 class="text-lg font-semibold text-white mb-4">
+                            <i class="fas fa-route mr-2"></i>Complete Route & Station Schedule
+                        </h5>
                         <div class="max-h-96 overflow-y-auto">
                             <div id="stationsList" class="space-y-3">
                                 <!-- Stations will be populated here -->
@@ -664,6 +747,15 @@
         document.addEventListener('DOMContentLoaded', function() {
             updateActiveNavLink();
             updateAuthUI();
+            // Enter key to trigger search
+            const tn = document.getElementById('trainNumberInput');
+            if (tn) {
+                tn.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        searchTrainSchedule();
+                    }
+                });
+            }
         });
 
         // User Type Modal Functions
@@ -695,6 +787,575 @@
         // Access Dashboard redirect function
         function redirectToAuth() {
             window.location.href = 'auth.html';
+        }
+
+        // ---------------- Live Train Module Logic ----------------
+        let __miniMap = null;
+        let __miniMarker = null;
+        // Determine API base. Default: same origin. Allow override via ?apiPort=NNNN
+        const urlParams = new URLSearchParams(window.location.search);
+        const apiPort = urlParams.get('apiPort');
+        const API_BASE = apiPort ? `http://localhost:${apiPort}` : window.location.origin;
+        const USE_MOCK = urlParams.get('useMock') === 'true';
+
+        // Simple client-side mock data to ensure the demo works without backend
+        const MOCK_TRAINS = {
+            "12951": {
+                trainNo: "12951",
+                trainName: "Mumbai Rajdhani Express",
+                source: "New Delhi",
+                destination: "Mumbai Central",
+                status: "Delayed 20 min",
+                delayReason: "Signal congestion",
+                delayMinutes: 20,
+                expectedRecovery: "15 min",
+                nextDeparture: "19:20",
+                delayReasonDetail: "Heavy signal congestion at Ghaziabad junction due to freight train movement. Expected to clear by 19:05.",
+                stations: [
+                    { name: "New Delhi", schDep: "16:55", actDep: "16:55", latitude: 28.6139, longitude: 77.2090 },
+                    { name: "Ghaziabad", schDep: "17:35", actDep: "17:50", latitude: 28.6692, longitude: 77.4538 },
+                    { name: "Aligarh", schDep: "19:05", actDep: "19:05", latitude: 27.8974, longitude: 78.0880 },
+                    { name: "Kanpur", schArr: "21:45", expArr: "22:05", latitude: 26.4499, longitude: 80.3319 }
+                ],
+                liveLocation: "Between Aligarh and Etawah"
+            },
+            "12033": {
+                trainNo: "12033",
+                trainName: "Kanpur Shatabdi Express",
+                source: "New Delhi",
+                destination: "Kanpur Central",
+                status: "On Time",
+                delayReason: null,
+                stations: [
+                    { name: "New Delhi", schDep: "15:50", actDep: "15:50", latitude: 28.6139, longitude: 77.2090 },
+                    { name: "Ghaziabad", schDep: "16:25", actDep: "16:25", latitude: 28.6692, longitude: 77.4538 },
+                    { name: "Etawah", schDep: "18:42", actDep: "18:42", latitude: 26.7779, longitude: 79.0238 },
+                    { name: "Kanpur", schArr: "20:20", expArr: "20:20", latitude: 26.4499, longitude: 80.3319 }
+                ],
+                liveLocation: "Approaching Etawah"
+            },
+            "12452": {
+                trainNo: "12452",
+                trainName: "Shram Shakti Express",
+                source: "New Delhi",
+                destination: "Kanpur Central",
+                status: "Delayed 10 min",
+                delayReason: "Heavy traffic near Tundla",
+                delayMinutes: 10,
+                expectedRecovery: "8 min",
+                nextDeparture: "03:05",
+                delayReasonDetail: "Heavy freight traffic congestion near Tundla junction. Track clearing in progress, expected normal operations by 03:00.",
+                stations: [
+                    { name: "New Delhi", schDep: "23:55", actDep: "23:55", latitude: 28.6139, longitude: 77.2090 },
+                    { name: "Ghaziabad", schDep: "00:30", actDep: "00:30", latitude: 28.6692, longitude: 77.4538 },
+                    { name: "Tundla", schDep: "02:47", actDep: "02:57", latitude: 27.2146, longitude: 78.2360 },
+                    { name: "Kanpur", schArr: "04:55", expArr: "05:05", latitude: 26.4499, longitude: 80.3319 }
+                ],
+                liveLocation: "Between Tundla and Etawah"
+            }
+        };
+
+        // Render helper to display schedule, status, and map from any data shape (API or mock)
+        function renderFromData(data, fallbackTrainNo) {
+            // Top info with null checks
+            const trainName = document.getElementById('trainName');
+            const trainNumber = document.getElementById('trainNumber');
+            const sourceStation = document.getElementById('sourceStation');
+            const destinationStation = document.getElementById('destinationStation');
+            const totalStations = document.getElementById('totalStations');
+            const lastUpdated = document.getElementById('lastUpdated');
+
+            if (trainName) trainName.textContent = data.trainName || data.name || 'Train';
+            if (trainNumber) trainNumber.textContent = data.trainNo || fallbackTrainNo || '—';
+            if (sourceStation) sourceStation.textContent = data.source || data.fromStation || '—';
+            if (destinationStation) destinationStation.textContent = data.destination || data.toStation || '—';
+            if (totalStations) totalStations.textContent = (data.stations?.length) || 0;
+            if (lastUpdated) lastUpdated.textContent = new Date().toLocaleTimeString();
+            setStatusBadge(data?.current_status || data?.status);
+
+            // Determine most recent station with actuals
+            const stations = Array.isArray(data.stations) ? data.stations : [];
+            let recent = null;
+            for (let i = stations.length - 1; i >= 0; i--) {
+                const s = stations[i];
+                if (s?.actDep || s?.actArr || s?.actualDeparture || s?.actualArrival) { recent = s; break; }
+            }
+            if (!recent && stations.length) recent = stations[0];
+
+            const stationName = recent?.stationName || recent?.name || recent?.code || '—';
+            const schDep = recent?.schDep || recent?.scheduledDeparture || '—';
+            const actDep = recent?.actDep || recent?.actualDeparture || '—';
+            const delayMin = recent?.delayMinutes ?? data?.delayMinutes ?? null;
+            const reason = recent?.delayReason || data?.delayReason || null;
+
+            const recentStationName = document.getElementById('recentStationName');
+            const scheduledDep = document.getElementById('scheduledDep');
+            const actualDep = document.getElementById('actualDep');
+            const delayBadge = document.getElementById('delayBadge');
+            const delayReason = document.getElementById('delayReason');
+
+            if (recentStationName) recentStationName.textContent = stationName;
+            if (scheduledDep) scheduledDep.textContent = schDep || '—';
+            if (actualDep) actualDep.textContent = actDep || '—';
+
+            if (delayBadge && delayReason) {
+                const delayDetails = document.getElementById('delayDetails');
+                console.log('Delay processing:', { delayMin, reason, data: data.delayMinutes, status: data.status });
+                
+                if (delayMin && delayMin > 0) {
+                    delayBadge.textContent = `Delayed ${delayMin} min`;
+                    delayBadge.className = 'px-3 py-1 rounded-full text-sm font-medium bg-yellow-600 text-white';
+                    delayReason.textContent = reason ? `Reason: ${reason}` : 'Reason: Not available';
+                    
+                    // Show detailed delay information
+                    if (delayDetails) {
+                        console.log('Showing delay details for', delayMin, 'minutes');
+                        delayDetails.classList.remove('hidden');
+                        const currentDelay = document.getElementById('currentDelay');
+                        const expectedRecovery = document.getElementById('expectedRecovery');
+                        const nextDeparture = document.getElementById('nextDeparture');
+                        const delayReasonDetail = document.getElementById('delayReasonDetail');
+                        
+                        if (currentDelay) currentDelay.textContent = `${delayMin} minutes`;
+                        if (expectedRecovery) expectedRecovery.textContent = data.expectedRecovery || 'Unknown';
+                        if (nextDeparture) nextDeparture.textContent = data.nextDeparture || 'TBD';
+                        if (delayReasonDetail) delayReasonDetail.textContent = data.delayReasonDetail || reason || 'No details available';
+                    } else {
+                        console.log('delayDetails element not found');
+                    }
+                } else {
+                    delayBadge.textContent = 'On Time';
+                    delayBadge.className = 'px-3 py-1 rounded-full text-sm font-medium bg-green-600 text-white';
+                    delayReason.textContent = '';
+                    if (delayDetails) delayDetails.classList.add('hidden');
+                }
+            }
+
+            // Live location / coordinates
+            const lat = data?.lat ?? data?.latitude ?? recent?.lat ?? recent?.latitude;
+            const lon = data?.lon ?? data?.longitude ?? recent?.lon ?? recent?.longitude;
+            const liveText = document.getElementById('liveLocationText');
+            if (liveText) {
+                if (typeof lat === 'number' && typeof lon === 'number') {
+                    liveText.textContent = `Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}`;
+                    initMiniMap(lat, lon, data);
+                } else if (data?.liveLocation) {
+                    liveText.textContent = data.liveLocation;
+                } else {
+                    liveText.textContent = 'Live location not available.';
+                }
+            }
+            
+            // Populate station details
+            populateStationDetails(data);
+        }
+
+        // Function to populate station details with visual route
+        function populateStationDetails(data) {
+            const stationsList = document.getElementById('stationsList');
+            if (!stationsList || !data.stations) return;
+            
+            const stations = data.stations;
+            const currentStation = findCurrentStation(data);
+            
+            stationsList.innerHTML = '';
+            
+            stations.forEach((station, index) => {
+                const isFirst = index === 0;
+                const isLast = index === stations.length - 1;
+                const isCurrent = station.name === currentStation?.name;
+                const isPassed = index < stations.findIndex(s => s.name === currentStation?.name);
+                
+                const stationCard = document.createElement('div');
+                stationCard.className = 'relative';
+                
+                // Determine status and colors
+                let statusIcon, statusColor, bgColor, borderColor;
+                if (isCurrent) {
+                    statusIcon = 'fas fa-train';
+                    statusColor = 'text-blue-400';
+                    bgColor = 'bg-blue-900/30';
+                    borderColor = 'border-blue-500/50';
+                } else if (isPassed) {
+                    statusIcon = 'fas fa-check-circle';
+                    statusColor = 'text-green-400';
+                    bgColor = 'bg-green-900/20';
+                    borderColor = 'border-green-500/30';
+                } else {
+                    statusIcon = 'fas fa-circle';
+                    statusColor = 'text-gray-400';
+                    bgColor = 'bg-gray-700/30';
+                    borderColor = 'border-gray-500/30';
+                }
+                
+                stationCard.innerHTML = `
+                    <!-- Route Line -->
+                    ${!isLast ? `
+                        <div class="absolute left-6 top-12 w-0.5 h-8 ${isPassed ? 'bg-green-500' : 'bg-gray-500'} opacity-60"></div>
+                    ` : ''}
+                    
+                    <!-- Station Card -->
+                    <div class="flex items-center space-x-4 p-3 rounded-lg border ${bgColor} ${borderColor}">
+                        <!-- Station Icon -->
+                        <div class="flex-shrink-0">
+                            <i class="${statusIcon} ${statusColor} text-lg"></i>
+                        </div>
+                        
+                        <!-- Station Info -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between">
+                                <h6 class="text-white font-medium truncate">${station.name}</h6>
+                                <div class="flex items-center space-x-2">
+                                    ${isFirst ? '<span class="px-2 py-1 text-xs bg-green-600 text-white rounded">Origin</span>' : ''}
+                                    ${isLast ? '<span class="px-2 py-1 text-xs bg-red-600 text-white rounded">Destination</span>' : ''}
+                                    ${isCurrent ? '<span class="px-2 py-1 text-xs bg-blue-600 text-white rounded animate-pulse">Current</span>' : ''}
+                                </div>
+                            </div>
+                            
+                            <!-- Timing Details -->
+                            <div class="mt-2 grid grid-cols-2 gap-4 text-sm">
+                                ${station.schArr ? `
+                                    <div>
+                                        <span class="text-gray-400">Arrival:</span>
+                                        <div class="text-gray-300">Sch: ${station.schArr}</div>
+                                        ${station.actArr ? `<div class="text-white">Act: ${station.actArr}</div>` : ''}
+                                    </div>
+                                ` : ''}
+                                ${station.schDep ? `
+                                    <div>
+                                        <span class="text-gray-400">Departure:</span>
+                                        <div class="text-gray-300">Sch: ${station.schDep}</div>
+                                        ${station.actDep ? `<div class="text-white">Act: ${station.actDep}</div>` : ''}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            
+                            <!-- Delay Info -->
+                            ${station.delayMinutes && station.delayMinutes > 0 ? `
+                                <div class="mt-2 text-xs text-yellow-400">
+                                    <i class="fas fa-clock mr-1"></i>Delayed by ${station.delayMinutes} min
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                stationsList.appendChild(stationCard);
+            });
+            
+            // Add route summary at the bottom
+            const routeSummary = document.createElement('div');
+            routeSummary.className = 'mt-4 p-3 bg-gray-700/50 rounded-lg border border-gray-500/30';
+            routeSummary.innerHTML = `
+                <div class="flex items-center justify-between text-sm">
+                    <div class="text-gray-300">
+                        <i class="fas fa-route mr-2"></i>Route Summary
+                    </div>
+                    <div class="text-white">
+                        ${stations.length} stations • ${data.source || 'Origin'} → ${data.destination || 'Destination'}
+                    </div>
+                </div>
+                <div class="mt-2 text-xs text-gray-400">
+                    Current Location: ${data.liveLocation || 'Unknown'}
+                </div>
+            `;
+            stationsList.appendChild(routeSummary);
+        }
+
+        // Helper function to find current station
+        function findCurrentStation(data) {
+            if (!data.stations) return null;
+            
+            // Find the most recent station with actual departure
+            for (let i = data.stations.length - 1; i >= 0; i--) {
+                const station = data.stations[i];
+                if (station.actDep || station.actualDeparture) {
+                    return station;
+                }
+            }
+            
+            // Fallback to first station
+            return data.stations[0];
+        }
+
+        // Toggle station details function (referenced by button onclick)
+        function toggleStationDetails() {
+            const details = document.getElementById('stationDetails');
+            const button = document.getElementById('toggleStationsButton');
+            
+            if (details && button) {
+                if (details.classList.contains('hidden')) {
+                    details.classList.remove('hidden');
+                    button.innerHTML = '<i class="fas fa-chevron-up mr-2"></i>Hide Station Details';
+                } else {
+                    details.classList.add('hidden');
+                    button.innerHTML = '<i class="fas fa-chevron-down mr-2"></i>Show Station Details';
+                }
+            }
+        }
+
+        function fetchWithTimeout(resource, options = {}) {
+            const { timeout = 15000 } = options;
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            return fetch(resource, { ...options, signal: controller.signal })
+                .finally(() => clearTimeout(id));
+        }
+
+        async function searchTrainSchedule() {
+            const input = document.getElementById('trainNumberInput');
+            const trainNo = (input?.value || '').trim();
+            
+            // Debug: Check if required elements exist
+            const loading = document.getElementById('trainSearchLoading');
+            const errorBox = document.getElementById('trainSearchError');
+            const errorMsg = document.getElementById('trainSearchErrorMessage');
+            const display = document.getElementById('trainScheduleDisplay');
+            const liveModule = document.getElementById('liveTrainModule');
+            
+            console.log('DOM elements check:', {
+                loading: !!loading,
+                errorBox: !!errorBox,
+                errorMsg: !!errorMsg,
+                display: !!display,
+                liveModule: !!liveModule
+            });
+
+            if (!trainNo) {
+                if (errorBox) errorBox.classList.remove('hidden');
+                if (errorMsg) errorMsg.textContent = 'Please enter a valid train number.';
+                return;
+            }
+
+            // Ensure we have the required elements before proceeding
+            if (!loading || !display) {
+                console.error('Required DOM elements missing. Cannot proceed with search.');
+                return;
+            }
+
+            if (errorBox) errorBox.classList.add('hidden');
+            if (loading) loading.classList.remove('hidden');
+            if (liveModule) liveModule.classList.add('hidden');
+
+            try {
+                // Check if we have mock data for this train first
+                const mockData = MOCK_TRAINS[trainNo];
+                
+                // If mock mode forced via query param OR mock data exists, use mock immediately
+                if (USE_MOCK || mockData) {
+                    if (!mockData) throw new Error('Mock not found for ' + trainNo);
+                    console.log('Using mock data for train:', trainNo);
+                    renderFromData(mockData, trainNo);
+                    if (liveModule) liveModule.classList.remove('hidden');
+                    if (display) display.classList.remove('hidden');
+                    if (errorBox) errorBox.classList.add('hidden');
+                    return;
+                }
+                
+                // Try API only if no mock data exists
+                const endpoint = `${API_BASE}/api/train/${encodeURIComponent(trainNo)}`;
+                console.log('Calling endpoint:', endpoint);
+                const res = await fetchWithTimeout(endpoint, { timeout: 5000 }); // Shorter timeout
+                if (!res.ok) throw new Error(`API error ${res.status}`);
+                const data = await res.json();
+                renderFromData(data, trainNo);
+                if (liveModule) liveModule.classList.remove('hidden');
+                if (display) display.classList.remove('hidden');
+                const trainSearchError = document.getElementById('trainSearchError');
+                if (trainSearchError) trainSearchError.classList.add('hidden');
+            } catch (err) {
+                console.error('Train fetch failed:', err);
+                // Always try mock fallback
+                const mock = MOCK_TRAINS[trainNo];
+                if (mock) {
+                    console.log('Falling back to mock data for train:', trainNo);
+                    renderFromData(mock, trainNo);
+                    if (liveModule) liveModule.classList.remove('hidden');
+                    if (display) display.classList.remove('hidden');
+                    const trainSearchError = document.getElementById('trainSearchError');
+                    if (trainSearchError) trainSearchError.classList.add('hidden');
+                } else {
+                    const trainSearchError = document.getElementById('trainSearchError');
+                    const em = document.getElementById('trainSearchErrorMessage');
+                    if (trainSearchError) trainSearchError.classList.remove('hidden');
+                    if (em) {
+                        em.textContent = `No data found for train ${trainNo}. Try: 12951, 12033, or 12452`;
+                    }
+                }
+            } finally {
+                if (loading) loading.classList.add('hidden');
+            }
+        }
+
+        function setStatusBadge(status) {
+            const badge = document.getElementById('trainStatusBadge');
+            const dot = document.getElementById('trainStatusIndicator');
+            const text = document.getElementById('trainStatusText');
+            const s = String(status || '').toLowerCase();
+            let bg = 'bg-gray-500', color = 'text-white', dotc = '#9ca3af', label = status || 'Unknown';
+            if (s.includes('delay')) { bg = 'bg-yellow-600'; dotc = '#f39c12'; label = 'Delayed'; }
+            else if (s.includes('run') || s.includes('time')) { bg = 'bg-green-600'; dotc = '#b5cea8'; label = 'On Time'; }
+            else if (s.includes('sched')) { bg = 'bg-blue-600'; dotc = '#569cd6'; label = 'Scheduled'; }
+            badge.className = `inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${bg} ${color}`;
+            text.textContent = label;
+            dot.style.backgroundColor = dotc;
+        }
+
+        function initMiniMap(lat, lon, trainData) {
+            const el = document.getElementById('trainMiniMap');
+            if (!el) return;
+            
+            // Clear any existing map
+            if (__miniMap) {
+                __miniMap.remove();
+                __miniMap = null;
+                __miniMarker = null;
+            }
+            
+            // Force a small delay to ensure DOM is ready
+            setTimeout(() => {
+                __miniMap = L.map('trainMiniMap', { 
+                    attributionControl: false, 
+                    zoomControl: true,
+                    scrollWheelZoom: false,
+                    preferCanvas: true
+                }).setView([lat, lon], 8);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
+                    attribution: '&copy; OpenStreetMap',
+                    maxZoom: 18
+                }).addTo(__miniMap);
+                
+                // Create custom train icon
+                const trainIcon = L.divIcon({
+                    html: '<i class="fas fa-train" style="color: #3b82f6; font-size: 20px;"></i>',
+                    iconSize: [30, 30],
+                    className: 'custom-div-icon'
+                });
+                
+                __miniMarker = L.marker([lat, lon], { icon: trainIcon }).addTo(__miniMap);
+                
+                // Add popup with train info
+                const popupContent = `
+                    <div style="text-align: center; font-family: Arial, sans-serif;">
+                        <strong style="color: #1f2937;">${trainData?.trainName || 'Train'}</strong><br>
+                        <span style="color: #6b7280; font-size: 12px;">${trainData?.trainNo || ''}</span><br>
+                        <span style="color: #059669; font-size: 11px;">${trainData?.liveLocation || 'Current Position'}</span>
+                    </div>
+                `;
+                __miniMarker.bindPopup(popupContent);
+                
+                // Add route line if stations data exists
+                if (trainData?.stations && trainData.stations.length > 1) {
+                    const routeCoords = trainData.stations
+                        .filter(station => station.latitude && station.longitude)
+                        .map(station => [station.latitude, station.longitude]);
+                    
+                    if (routeCoords.length > 1) {
+                        L.polyline(routeCoords, {
+                            color: '#ef4444',
+                            weight: 3,
+                            opacity: 0.7,
+                            dashArray: '5, 10'
+                        }).addTo(__miniMap);
+                        
+                        // Add station markers
+                        trainData.stations.forEach((station) => {
+                            if (station.latitude && station.longitude) {
+                                const stationIcon = L.divIcon({
+                                    html: '<i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i>',
+                                    iconSize: [16, 16],
+                                    className: 'custom-div-icon'
+                                });
+                                
+                                const stationMarker = L.marker([station.latitude, station.longitude], { 
+                                    icon: stationIcon 
+                                }).addTo(__miniMap);
+                                
+                                stationMarker.bindPopup(`
+                                    <div style="font-family: Arial, sans-serif;">
+                                        <strong style="color: #1f2937;">${station.name}</strong><br>
+                                        <span style="color: #6b7280; font-size: 11px;">
+                                            Sch: ${station.schDep || station.schArr || 'N/A'}<br>
+                                            Act: ${station.actDep || station.actArr || 'N/A'}
+                                        </span>
+                                    </div>
+                                `);
+                            }
+                        });
+                    }
+                }
+                
+                // Force map to resize after initialization
+                setTimeout(() => {
+                    if (__miniMap) {
+                        __miniMap.invalidateSize();
+                    }
+                }, 100);
+            }, 100);
+        }
+
+        // Render helper to display schedule, status, and map from any data shape (API or mock)
+        function renderFromData(data, fallbackTrainNo) {
+            // Top info with null checks
+            const trainName = document.getElementById('trainName');
+            const trainNumber = document.getElementById('trainNumber');
+            const sourceStation = document.getElementById('sourceStation');
+            const destinationStation = document.getElementById('destinationStation');
+            const totalStations = document.getElementById('totalStations');
+            const lastUpdated = document.getElementById('lastUpdated');
+
+            if (trainName) trainName.textContent = data.trainName || data.name || 'Train';
+            if (trainNumber) trainNumber.textContent = data.trainNo || fallbackTrainNo || '—';
+            if (sourceStation) sourceStation.textContent = data.source || data.fromStation || '—';
+            if (destinationStation) destinationStation.textContent = data.destination || data.toStation || '—';
+            if (totalStations) totalStations.textContent = (data.stations?.length) || 0;
+            if (lastUpdated) lastUpdated.textContent = new Date().toLocaleTimeString();
+            setStatusBadge(data?.current_status || data?.status);
+
+            // Determine most recent station with actuals
+            const stations = Array.isArray(data.stations) ? data.stations : [];
+            let recent = null;
+            for (let i = stations.length - 1; i >= 0; i--) {
+                const s = stations[i];
+                if (s?.actDep || s?.actArr || s?.actualDeparture || s?.actualArrival) { recent = s; break; }
+            }
+            if (!recent && stations.length) recent = stations[0];
+
+            const stationName = recent?.stationName || recent?.name || recent?.code || '—';
+            const schDep = recent?.schDep || recent?.scheduledDeparture || '—';
+            const actDep = recent?.actDep || recent?.actualDeparture || '—';
+            const delayMin = recent?.delayMinutes ?? data?.delayMinutes ?? null;
+            const reason = recent?.delayReason || data?.delayReason || null;
+
+            document.getElementById('recentStationName').textContent = stationName;
+            document.getElementById('scheduledDep').textContent = schDep || '—';
+            document.getElementById('actualDep').textContent = actDep || '—';
+            const delayBadge = document.getElementById('delayBadge');
+            const delayReason = document.getElementById('delayReason');
+
+            if (delayMin && delayMin > 0) {
+                delayBadge.textContent = `Delayed ${delayMin} min`;
+                delayBadge.className = 'px-3 py-1 rounded-full text-sm font-medium bg-yellow-600 text-white';
+                delayReason.textContent = reason ? `Reason: ${reason}` : 'Reason: Not available';
+            } else {
+                delayBadge.textContent = 'On Time';
+                delayBadge.className = 'px-3 py-1 rounded-full text-sm font-medium bg-green-600 text-white';
+                delayReason.textContent = '';
+            }
+
+            // Live location / coordinates
+            const lat = data?.lat ?? data?.latitude ?? recent?.lat ?? recent?.latitude;
+            const lon = data?.lon ?? data?.longitude ?? recent?.lon ?? recent?.longitude;
+            const liveText = document.getElementById('liveLocationText');
+            if (typeof lat === 'number' && typeof lon === 'number') {
+                liveText.textContent = `Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}`;
+                initMiniMap(lat, lon);
+            } else if (data?.liveLocation) {
+                liveText.textContent = data.liveLocation;
+            } else {
+                liveText.textContent = 'Live location not available.';
+            }
         }
 
         // Close modal when clicking outside
