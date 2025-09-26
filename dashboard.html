@@ -115,6 +115,10 @@
                     <i class="fas fa-chart-bar"></i>
                     <span>Reports</span>
                 </a>
+                <a href="#sop" onclick="showSection('sop')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-book"></i>
+                    <span>SOP & Emergency</span>
+                </a>
                 <a href="#settings" onclick="showSection('settings')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition-colors">
                     <i class="fas fa-cog"></i>
                     <span>Settings</span>
@@ -176,87 +180,235 @@
         <main class="p-6">
             <!-- Dashboard Overview Section -->
             <div id="dashboard-section" class="section-content">
-                <!-- KPI Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-gray-800 rounded-xl p-6 card-hover">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-400 text-sm">Active Trains</p>
-                                <p class="text-3xl font-bold text-blue-400" id="active-trains">24</p>
+                <!-- Status Banner -->
+                <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-4 mb-6 text-white">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                                <span class="font-medium">System Status: OPERATIONAL</span>
                             </div>
-                            <div class="text-blue-400 text-2xl">
+                            <div class="text-sm opacity-90">Delhi → Kanpur Section</div>
+                        </div>
+                        <div class="flex items-center space-x-6 text-sm">
+                            <div><i class="fas fa-map-marker-alt mr-1"></i>6 Stations Active</div>
+                            <div><i class="fas fa-train mr-1"></i>8 Trains Monitored</div>
+                            <div><i class="fas fa-clock mr-1"></i>Last Update: <span id="last-update-time">11:45 AM</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-gradient-to-br from-gray-800 to-gray-700 rounded-xl p-6 border border-gray-600 hover:border-blue-500 transition-all">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="text-blue-400 text-3xl">
                                 <i class="fas fa-train"></i>
                             </div>
+                            <div class="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded">LIVE</div>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-sm mb-1">Active Trains</p>
+                            <p class="text-3xl font-bold text-white mb-2" id="active-trains">8</p>
+                            <div class="flex items-center text-xs">
+                                <span class="text-green-400 mr-1"><i class="fas fa-arrow-up"></i></span>
+                                <span class="text-green-400">+2 from yesterday</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="bg-gray-800 rounded-xl p-6 card-hover">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-400 text-sm">On-Time %</p>
-                                <p class="text-3xl font-bold text-green-400" id="ontime-percent">87%</p>
-                            </div>
-                            <div class="text-green-400 text-2xl">
+                    <div class="bg-gradient-to-br from-gray-800 to-gray-700 rounded-xl p-6 border border-gray-600 hover:border-green-500 transition-all">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="text-green-400 text-3xl">
                                 <i class="fas fa-clock"></i>
                             </div>
+                            <div class="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded">87%</div>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-sm mb-1">Punctuality Rate</p>
+                            <p class="text-3xl font-bold text-white mb-2" id="ontime-percent">87%</p>
+                            <div class="flex items-center text-xs">
+                                <span class="text-green-400 mr-1"><i class="fas fa-arrow-up"></i></span>
+                                <span class="text-green-400">+3% this week</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="bg-gray-800 rounded-xl p-6 card-hover">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-400 text-sm">Avg Delay</p>
-                                <p class="text-3xl font-bold text-yellow-400" id="avg-delay">4.2m</p>
-                            </div>
-                            <div class="text-yellow-400 text-2xl">
+                    <div class="bg-gradient-to-br from-gray-800 to-gray-700 rounded-xl p-6 border border-gray-600 hover:border-yellow-500 transition-all">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="text-yellow-400 text-3xl">
                                 <i class="fas fa-hourglass-half"></i>
                             </div>
+                            <div class="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded">MIN</div>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-sm mb-1">Average Delay</p>
+                            <p class="text-3xl font-bold text-white mb-2" id="avg-delay">4.2m</p>
+                            <div class="flex items-center text-xs">
+                                <span class="text-red-400 mr-1"><i class="fas fa-arrow-down"></i></span>
+                                <span class="text-green-400">-1.3m improved</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="bg-gray-800 rounded-xl p-6 card-hover">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-gray-400 text-sm">Section Utilization</p>
-                                <p class="text-3xl font-bold text-purple-400" id="section-util">73%</p>
-                            </div>
-                            <div class="text-purple-400 text-2xl">
+                    <div class="bg-gradient-to-br from-gray-800 to-gray-700 rounded-xl p-6 border border-gray-600 hover:border-purple-500 transition-all">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="text-purple-400 text-3xl">
                                 <i class="fas fa-chart-pie"></i>
                             </div>
+                            <div class="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded">PEAK</div>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-sm mb-1">Section Utilization</p>
+                            <p class="text-3xl font-bold text-white mb-2" id="section-util">73%</p>
+                            <div class="flex items-center text-xs">
+                                <span class="text-yellow-400 mr-1"><i class="fas fa-arrow-up"></i></span>
+                                <span class="text-yellow-400">Peak hours active</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Charts Row -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    <div class="bg-gray-800 rounded-xl p-6">
-                        <h3 class="text-lg font-semibold mb-4">Traffic Flow Today</h3>
-                        <canvas id="trafficChart" width="400" height="200"></canvas>
+                <!-- Main Dashboard Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Traffic Flow & Analytics (2/3 width) -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Traffic Flow Chart -->
+                        <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold flex items-center">
+                                    <i class="fas fa-chart-line mr-2 text-blue-400"></i>
+                                    Traffic Flow Analysis
+                                </h3>
+                                <div class="flex items-center space-x-2">
+                                    <select class="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs">
+                                        <option>Today</option>
+                                        <option>This Week</option>
+                                        <option>This Month</option>
+                                    </select>
+                                    <button class="text-xs text-blue-400 hover:text-blue-300">
+                                        <i class="fas fa-expand-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <canvas id="trafficChart" height="200"></canvas>
+                            <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-gray-700">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-blue-400">342</div>
+                                    <div class="text-xs text-gray-400">Total Movements</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-green-400">298</div>
+                                    <div class="text-xs text-gray-400">On Schedule</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-yellow-400">44</div>
+                                    <div class="text-xs text-gray-400">Delayed</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section Status Map -->
+                        <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold flex items-center">
+                                    <i class="fas fa-route mr-2 text-green-400"></i>
+                                    Section Status Overview
+                                </h3>
+                                <div class="text-xs text-gray-400">Delhi Jn → Kanpur Central</div>
+                            </div>
+                            <div class="space-y-4" id="section-status-map">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                        </div>
                     </div>
-                    <div class="bg-gray-800 rounded-xl p-6">
-                        <h3 class="text-lg font-semibold mb-4">Section Occupancy</h3>
-                        <canvas id="occupancyChart" width="400" height="200"></canvas>
+
+                    <!-- Right Panel - Live Updates & Alerts -->
+                    <div class="space-y-6">
+                        <!-- Current Weather & Conditions -->
+                        <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                            <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                <i class="fas fa-cloud-sun mr-2 text-yellow-400"></i>
+                                Operational Conditions
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-400">Weather</span>
+                                    <span class="text-sm text-white flex items-center">
+                                        <i class="fas fa-sun mr-1 text-yellow-400"></i>Clear
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-400">Visibility</span>
+                                    <span class="text-sm text-green-400">Excellent (>10km)</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-400">Signal Status</span>
+                                    <span class="text-sm text-green-400">All Clear</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-400">OHE Status</span>
+                                    <span class="text-sm text-green-400">Normal</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section Occupancy -->
+                        <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                            <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                <i class="fas fa-chart-pie mr-2 text-purple-400"></i>
+                                Section Occupancy
+                            </h3>
+                            <canvas id="occupancyChart" height="200"></canvas>
+                            <div id="occupancyDetails" class="mt-4 hidden bg-gray-700/60 border border-gray-600 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="text-sm text-gray-300">Click a segment to view details.</div>
+                                    <button id="closeOccDetails" class="text-xs px-2 py-1 rounded bg-gray-600 hover:bg-gray-500">Close</button>
+                                </div>
+                                <div id="occupancyDetailsBody" class="mt-3 text-sm text-gray-200"></div>
+                            </div>
+                        </div>
+
+                        <!-- Priority Alerts -->
+                        <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                            <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-2 text-red-400"></i>
+                                Priority Alerts
+                            </h3>
+                            <div class="space-y-3" id="priority-alerts">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Recent Activity -->
-                <div class="bg-gray-800 rounded-xl p-6">
-                    <h3 class="text-lg font-semibold mb-4">Recent Activity</h3>
-                    <div class="space-y-3" id="recent-activity">
-                        <div class="flex items-center space-x-3 p-3 bg-gray-700 rounded-lg">
-                            <div class="w-2 h-2 bg-green-400 rounded-full pulse-dot"></div>
-                            <span class="text-sm">Train T001 cleared Section A-12 - On Time</span>
-                            <span class="text-xs text-gray-400 ml-auto">2 min ago</span>
+                <!-- Live Activity Feed -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Recent Activity -->
+                    <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold flex items-center">
+                                <i class="fas fa-history mr-2 text-blue-400"></i>
+                                Live Activity Feed
+                            </h3>
+                            <button class="text-xs text-blue-400 hover:text-blue-300">View All</button>
                         </div>
-                        <div class="flex items-center space-x-3 p-3 bg-gray-700 rounded-lg">
-                            <div class="w-2 h-2 bg-yellow-400 rounded-full pulse-dot"></div>
-                            <span class="text-sm">Train T045 delayed by 3 minutes - Weather conditions</span>
-                            <span class="text-xs text-gray-400 ml-auto">5 min ago</span>
+                        <div class="space-y-3 max-h-64 overflow-y-auto" id="recent-activity">
+                            <!-- Will be populated by JavaScript -->
                         </div>
-                        <div class="flex items-center space-x-3 p-3 bg-gray-700 rounded-lg">
-                            <div class="w-2 h-2 bg-blue-400 rounded-full pulse-dot"></div>
-                            <span class="text-sm">AI recommended priority change for Express T023</span>
-                            <span class="text-xs text-gray-400 ml-auto">8 min ago</span>
+                    </div>
+
+                    <!-- Train Status Summary -->
+                    <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold flex items-center">
+                                <i class="fas fa-train mr-2 text-green-400"></i>
+                                Current Train Status
+                            </h3>
+                            <button class="text-xs text-blue-400 hover:text-blue-300">Detailed View</button>
+                        </div>
+                        <div class="space-y-3" id="train-status-summary">
+                            <!-- Will be populated by JavaScript -->
                         </div>
                     </div>
                 </div>
@@ -350,83 +502,71 @@
                 </div>
             </div>
 
-            <!-- Decision Panel Section -->
+            <!-- Enhanced AI Decision Panel -->
             <div id="decision-panel-section" class="section-content hidden">
-                <div class="mb-6">
-                    <h3 class="text-xl font-semibold mb-2">AI Decision Support</h3>
-                    <p class="text-gray-400">AI-powered recommendations for traffic optimization</p>
+                <!-- Header with Status -->
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-xl font-semibold flex items-center">
+                            <i class="fas fa-brain mr-3 text-blue-400"></i>
+                            AI Decision Support System
+                        </h3>
+                        <div class="text-sm text-gray-400 mt-1">Intelligent Traffic Control • Delhi Jn → Kanpur Central</div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-sm text-gray-400">
+                            <i class="fas fa-clock mr-1"></i>
+                            Last Analysis: <span id="decision-updated">12:23 PM</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                            <span class="text-sm text-green-400">AI Active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Decision Summary Dashboard -->
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-4 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-2xl font-bold">3</div>
+                                <div class="text-sm opacity-90">Active Decisions</div>
+                            </div>
+                            <i class="fas fa-lightbulb text-2xl opacity-75"></i>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-4 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-2xl font-bold">89%</div>
+                                <div class="text-sm opacity-90">Avg Confidence</div>
+                            </div>
+                            <i class="fas fa-chart-line text-2xl opacity-75"></i>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-r from-yellow-600 to-yellow-700 rounded-xl p-4 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-2xl font-bold">2</div>
+                                <div class="text-sm opacity-90">High Priority</div>
+                            </div>
+                            <i class="fas fa-exclamation-triangle text-2xl opacity-75"></i>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-r from-purple-600 to-purple-700 rounded-xl p-4 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-2xl font-bold">15min</div>
+                                <div class="text-sm opacity-90">Time Saved</div>
+                            </div>
+                            <i class="fas fa-clock text-2xl opacity-75"></i>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="space-y-6" id="ai-recommendations">
-                    <!-- AI Recommendation Card 1 -->
-                    <div class="bg-gray-800 rounded-xl p-6 border-l-4 border-blue-500">
-                        <div class="flex items-start justify-between mb-4">
-                            <div>
-                                <h4 class="text-lg font-semibold text-blue-400">Priority Override Recommendation</h4>
-                                <p class="text-sm text-gray-400">Confidence: 92%</p>
-                            </div>
-                            <div class="flex space-x-2">
-                                <button onclick="acceptRecommendation(1)" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-sm transition-colors">
-                                    <i class="fas fa-check mr-2"></i>Accept
-                                </button>
-                                <button onclick="modifyRecommendation(1)" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg text-sm transition-colors">
-                                    <i class="fas fa-edit mr-2"></i>Modify
-                                </button>
-                                <button onclick="rejectRecommendation(1)" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm transition-colors">
-                                    <i class="fas fa-times mr-2"></i>Reject
-                                </button>
-                            </div>
-                        </div>
-                        <p class="text-gray-300 mb-3">
-                            <strong>Recommendation:</strong> Give priority to Express Train T001 over Freight F045 at Junction J-12
-                        </p>
-                        <p class="text-gray-400 text-sm mb-4">
-                            <strong>Reasoning:</strong> Express T001 has 200+ passengers and is currently on schedule. Delaying it would cause cascading delays to 3 connecting services. Freight F045 can wait 4 minutes without significant impact.
-                        </p>
-                        <div class="bg-gray-700 rounded-lg p-3">
-                            <p class="text-xs text-gray-400">Impact Analysis:</p>
-                            <ul class="text-sm text-gray-300 mt-1 space-y-1">
-                                <li>• Passenger delay reduction: 12 minutes</li>
-                                <li>• Network efficiency gain: +3.2%</li>
-                                <li>• Freight delay increase: 4 minutes (acceptable)</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- AI Recommendation Card 2 -->
-                    <div class="bg-gray-800 rounded-xl p-6 border-l-4 border-yellow-500">
-                        <div class="flex items-start justify-between mb-4">
-                            <div>
-                                <h4 class="text-lg font-semibold text-yellow-400">Route Optimization</h4>
-                                <p class="text-sm text-gray-400">Confidence: 78%</p>
-                            </div>
-                            <div class="flex space-x-2">
-                                <button onclick="acceptRecommendation(2)" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-sm transition-colors">
-                                    <i class="fas fa-check mr-2"></i>Accept
-                                </button>
-                                <button onclick="modifyRecommendation(2)" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg text-sm transition-colors">
-                                    <i class="fas fa-edit mr-2"></i>Modify
-                                </button>
-                                <button onclick="rejectRecommendation(2)" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm transition-colors">
-                                    <i class="fas fa-times mr-2"></i>Reject
-                                </button>
-                            </div>
-                        </div>
-                        <p class="text-gray-300 mb-3">
-                            <strong>Recommendation:</strong> Reroute Local Train L023 via alternate track B-7 to B-9
-                        </p>
-                        <p class="text-gray-400 text-sm mb-4">
-                            <strong>Reasoning:</strong> Main track A-8 has maintenance scheduled in 15 minutes. Proactive rerouting will prevent delays and optimize track utilization.
-                        </p>
-                        <div class="bg-gray-700 rounded-lg p-3">
-                            <p class="text-xs text-gray-400">Impact Analysis:</p>
-                            <ul class="text-sm text-gray-300 mt-1 space-y-1">
-                                <li>• Journey time increase: 2 minutes</li>
-                                <li>• Maintenance conflict avoided</li>
-                                <li>• Track utilization optimized</li>
-                            </ul>
-                        </div>
-                    </div>
+                    <!-- Will be populated by JavaScript -->
                 </div>
 
                 <!-- Decision Audit Trail -->
@@ -438,58 +578,157 @@
                             <span class="text-sm">15:42 - Controller accepted AI priority recommendation for T001</span>
                             <span class="text-xs text-gray-400 ml-auto">AI + Human</span>
                         </div>
-                        <div class="flex items-center space-x-3 p-3 bg-gray-700 rounded-lg">
-                            <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                            <span class="text-sm">15:38 - Controller modified route for L023 (AI suggested B-7, chose B-6)</span>
-                            <span class="text-xs text-gray-400 ml-auto">Human Override</span>
-                        </div>
-                        <div class="flex items-center space-x-3 p-3 bg-gray-700 rounded-lg">
-                            <div class="w-3 h-3 bg-red-400 rounded-full"></div>
-                            <span class="text-sm">15:35 - Controller rejected AI delay recommendation for F045</span>
-                            <span class="text-xs text-gray-400 ml-auto">Human Override</span>
-                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Scheduling & Precedence -->
+            <!-- Enhanced Train Scheduling & Precedence -->
             <div id="scheduling-section" class="section-content hidden">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-semibold">Train Scheduling & Precedence</h3>
-                    <div class="text-sm text-gray-400">Last Updated: <span id="sched-updated">--</span></div>
-                </div>
-
-                <div class="bg-gray-800 rounded-xl p-4 mb-4">
-                    <div class="flex flex-wrap gap-3 items-center">
-                        <input id="sched-filter" type="text" placeholder="Filter by train or section" class="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500">
-                        <select id="sched-priority" class="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm">
-                            <option value="">All Priorities</option>
-                            <option value="High">High</option>
-                            <option value="Medium">Medium</option>
-                            <option value="Low">Low</option>
-                        </select>
-                        <button onclick="refreshScheduling()" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-sm">Refresh</button>
+                <!-- Header with Status -->
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-xl font-semibold flex items-center">
+                            <i class="fas fa-calendar-alt mr-3 text-blue-400"></i>
+                            Train Scheduling & Precedence
+                        </h3>
+                        <div class="text-sm text-gray-400 mt-1">Delhi Jn → Kanpur Central Section • SOP Compliant</div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-sm text-gray-400">
+                            <i class="fas fa-clock mr-1"></i>
+                            Last Updated: <span id="sched-updated">--</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                            <span class="text-sm text-green-400">Live</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-gray-800 rounded-xl overflow-hidden">
+                <!-- Enhanced Control Panel -->
+                <div class="bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl p-6 mb-6 border border-gray-600">
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
+                        <!-- Search & Filter -->
+                        <div class="lg:col-span-2">
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input id="sched-filter" type="text" placeholder="Search trains, sections, or stations..." 
+                                       class="w-full bg-gray-700 border border-gray-600 rounded-lg pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                            </div>
+                        </div>
+                        
+                        <!-- Priority Filter -->
+                        <div>
+                            <select id="sched-priority" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-blue-500">
+                                <option value="">All SOP Priorities</option>
+                                <option value="1">Tier 1 - Premium</option>
+                                <option value="2">Tier 2 - Superfast</option>
+                                <option value="3">Tier 3 - Passenger</option>
+                                <option value="4">Tier 4 - Container</option>
+                                <option value="5">Tier 5 - General Goods</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="flex space-x-2">
+                            <button onclick="refreshScheduling()" class="flex-1 bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-lg text-sm font-medium transition-colors">
+                                <i class="fas fa-sync-alt mr-2"></i>Refresh
+                            </button>
+                            <button onclick="exportScheduling()" class="bg-green-600 hover:bg-green-700 px-4 py-3 rounded-lg text-sm">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-gray-600">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-400" id="total-trains">8</div>
+                            <div class="text-xs text-gray-400">Total Trains</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-green-400" id="ontime-trains">5</div>
+                            <div class="text-xs text-gray-400">On Time</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-yellow-400" id="delayed-trains">2</div>
+                            <div class="text-xs text-gray-400">Delayed</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-red-400" id="critical-trains">1</div>
+                            <div class="text-xs text-gray-400">Critical</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Scheduling Table -->
+                <div class="bg-gray-800 rounded-xl overflow-hidden shadow-xl border border-gray-700">
                     <div class="overflow-x-auto">
                         <table class="min-w-full text-sm">
-                            <thead class="bg-gray-750 bg-gray-700 text-gray-300">
+                            <thead class="bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 text-gray-200">
                                 <tr>
-                                    <th class="px-4 py-3 text-left">Train</th>
-                                    <th class="px-4 py-3 text-left">Type</th>
-                                    <th class="px-4 py-3 text-left">Priority</th>
-                                    <th class="px-4 py-3 text-left">Arr</th>
-                                    <th class="px-4 py-3 text-left">Dep</th>
-                                    <th class="px-4 py-3 text-left">Delay</th>
-                                    <th class="px-4 py-3 text-left">Section</th>
-                                    <th class="px-4 py-3 text-left">AI Recommendation</th>
-                                    <th class="px-4 py-3 text-left">Action</th>
+                                    <th class="px-6 py-4 text-left font-semibold">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-train mr-2 text-blue-400"></i>
+                                            Train Details
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4 text-left font-semibold">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-layer-group mr-2 text-purple-400"></i>
+                                            SOP Priority
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4 text-left font-semibold">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-map-marker-alt mr-2 text-green-400"></i>
+                                            Current Location
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4 text-left font-semibold">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-clock mr-2 text-yellow-400"></i>
+                                            Schedule
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4 text-left font-semibold">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-exclamation-triangle mr-2 text-orange-400"></i>
+                                            Status
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4 text-left font-semibold">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-robot mr-2 text-cyan-400"></i>
+                                            AI Recommendation
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-4 text-center font-semibold">
+                                        <div class="flex items-center justify-center">
+                                            <i class="fas fa-cogs mr-2 text-gray-400"></i>
+                                            Actions
+                                        </div>
+                                    </th>
                                 </tr>
                             </thead>
-                            <tbody id="sched-table" class="divide-y divide-gray-700"></tbody>
+                            <tbody id="sched-table" class="bg-gray-800 divide-y divide-gray-700/50">
+                                <!-- Table content will be populated by JavaScript -->
+                            </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <!-- Action Summary Panel -->
+                <div class="mt-6 bg-gray-800 rounded-xl p-6 border border-gray-700">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-lg font-semibold flex items-center">
+                            <i class="fas fa-clipboard-check mr-2 text-green-400"></i>
+                            Recent Actions
+                        </h4>
+                        <button class="text-xs text-blue-400 hover:text-blue-300">View All</button>
+                    </div>
+                    <div id="action-summary" class="space-y-2 max-h-32 overflow-y-auto">
+                        <!-- Action summary will be populated by JavaScript -->
                     </div>
                 </div>
             </div>
@@ -528,27 +767,297 @@
                 <div id="alerts-list" class="space-y-3"></div>
             </div>
 
-            <!-- Reports -->
+            <!-- Reports & Analytics -->
             <div id="reports-section" class="section-content hidden">
-                <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center justify-between mb-6">
                     <h3 class="text-xl font-semibold">Reports & Analytics</h3>
-                    <div class="space-x-2">
-                        <button onclick="downloadCSV()" class="bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm"><i class="fas fa-file-csv mr-2"></i>CSV</button>
-                        <button onclick="window.print()" class="bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm"><i class="fas fa-file-pdf mr-2"></i>Print/PDF</button>
+                    <div class="flex items-center space-x-3">
+                        <select id="report-period" class="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm">
+                            <option value="today">Today</option>
+                            <option value="week" selected>Last 7 Days</option>
+                            <option value="month">Last 30 Days</option>
+                            <option value="quarter">Last Quarter</option>
+                        </select>
+                        <button onclick="exportReport('csv')" class="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg text-sm flex items-center">
+                            <i class="fas fa-file-csv mr-2"></i>CSV
+                        </button>
+                        <button onclick="exportReport('pdf')" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg text-sm flex items-center">
+                            <i class="fas fa-file-pdf mr-2"></i>PDF
+                        </button>
+                        <button onclick="refreshReports()" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-sm">
+                            <i class="fas fa-sync-alt mr-2"></i>Refresh
+                        </button>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="bg-gray-800 rounded-xl p-6">
-                        <h4 class="font-semibold mb-3">Punctuality Trend (7 days)</h4>
-                        <canvas id="punctualityChart" height="180"></canvas>
+
+                <!-- KPI Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-6 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-2xl font-bold" id="kpi-punctuality">87.3%</div>
+                                <div class="text-sm opacity-90">Overall Punctuality</div>
+                            </div>
+                            <div class="text-3xl opacity-75">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-sm">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            <span>+2.1% from last week</span>
+                        </div>
                     </div>
-                    <div class="bg-gray-800 rounded-xl p-6">
-                        <h4 class="font-semibold mb-3">Delay Causes</h4>
-                        <canvas id="delayCauseChart" height="180"></canvas>
+
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-2xl font-bold" id="kpi-throughput">342</div>
+                                <div class="text-sm opacity-90">Trains Handled</div>
+                            </div>
+                            <div class="text-3xl opacity-75">
+                                <i class="fas fa-train"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-sm">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            <span>+15 from yesterday</span>
+                        </div>
                     </div>
+
+                    <div class="bg-gradient-to-r from-yellow-600 to-yellow-700 rounded-xl p-6 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-2xl font-bold" id="kpi-avg-delay">4.2 min</div>
+                                <div class="text-sm opacity-90">Avg Delay</div>
+                            </div>
+                            <div class="text-3xl opacity-75">
+                                <i class="fas fa-hourglass-half"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-sm">
+                            <i class="fas fa-arrow-down mr-1"></i>
+                            <span>-0.8 min improvement</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-purple-600 to-purple-700 rounded-xl p-6 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-2xl font-bold" id="kpi-efficiency">94.7%</div>
+                                <div class="text-sm opacity-90">SOP Compliance</div>
+                            </div>
+                            <div class="text-3xl opacity-75">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-sm">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            <span>+1.3% this week</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                     <div class="bg-gray-800 rounded-xl p-6">
-                        <h4 class="font-semibold mb-3">Throughput Utilization</h4>
-                        <canvas id="throughputChart" height="180"></canvas>
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-semibold">Punctuality Trend</h4>
+                            <div class="text-sm text-gray-400">Last 7 Days</div>
+                        </div>
+                        <canvas id="punctualityChart" height="200"></canvas>
+                    </div>
+
+                    <div class="bg-gray-800 rounded-xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-semibold">Delay Analysis</h4>
+                            <div class="text-sm text-gray-400">By Category</div>
+                        </div>
+                        <canvas id="delayCauseChart" height="200"></canvas>
+                    </div>
+
+                    <div class="bg-gray-800 rounded-xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-semibold">Section Utilization</h4>
+                            <div class="text-sm text-gray-400">Peak Hours</div>
+                        </div>
+                        <canvas id="throughputChart" height="200"></canvas>
+                    </div>
+
+                    <div class="bg-gray-800 rounded-xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-semibold">Train Category Performance</h4>
+                            <div class="text-sm text-gray-400">SOP Priority Wise</div>
+                        </div>
+                        <canvas id="categoryChart" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Detailed Analytics Tables -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Station Performance -->
+                    <div class="bg-gray-800 rounded-xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-semibold flex items-center">
+                                <i class="fas fa-map-marker-alt mr-2 text-blue-400"></i>
+                                Station Performance
+                            </h4>
+                            <button class="text-xs text-blue-400 hover:text-blue-300">View All</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="text-gray-400 border-b border-gray-700">
+                                    <tr>
+                                        <th class="text-left py-2">Station</th>
+                                        <th class="text-right py-2">Trains</th>
+                                        <th class="text-right py-2">Punctuality</th>
+                                        <th class="text-right py-2">Avg Delay</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-700" id="station-performance-table">
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- SOP Compliance Report -->
+                    <div class="bg-gray-800 rounded-xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-semibold flex items-center">
+                                <i class="fas fa-book mr-2 text-purple-400"></i>
+                                SOP Compliance
+                            </h4>
+                            <button class="text-xs text-blue-400 hover:text-blue-300">Details</button>
+                        </div>
+                        <div class="space-y-3" id="sop-compliance-report">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Critical Events & Alerts -->
+                <div class="bg-gray-800 rounded-xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-semibold flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-2 text-yellow-400"></i>
+                            Critical Events & Performance Issues
+                        </h4>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-gray-400">Last 24 Hours</span>
+                            <button class="text-xs text-blue-400 hover:text-blue-300">Export Log</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="text-gray-400 border-b border-gray-700">
+                                <tr>
+                                    <th class="text-left py-2">Time</th>
+                                    <th class="text-left py-2">Event Type</th>
+                                    <th class="text-left py-2">Train/Section</th>
+                                    <th class="text-left py-2">Description</th>
+                                    <th class="text-left py-2">Impact</th>
+                                    <th class="text-left py-2">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-700" id="critical-events-table">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SOP & Emergency Protocols Section -->
+            <div id="sop-section" class="section-content hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold">SOP & Emergency Protocols</h3>
+                    <div class="text-sm text-gray-400">Delhi Jn. (DLI) – Kanpur Central (CNB) Section</div>
+                </div>
+
+                <!-- SOP Priority System -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-gray-800 rounded-xl p-6">
+                        <h4 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-list-ol mr-2 text-blue-400"></i>
+                            SOP Priority System
+                        </h4>
+                        <div class="space-y-3" id="sop-priority-list">
+                            <!-- Priority list will be populated here -->
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-800 rounded-xl p-6">
+                        <h4 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-phone mr-2 text-red-400"></i>
+                            Emergency Contacts
+                        </h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span>Chief Controller (Allahabad):</span>
+                                <span class="text-blue-300">0532-2408500</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span>Divisional Safety Officer:</span>
+                                <span class="text-blue-300">0532-2408501</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span>ART/ARME (Tundla):</span>
+                                <span class="text-blue-300">05652-252100</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span>OHE Control:</span>
+                                <span class="text-blue-300">0532-2408502</span>
+                            </div>
+                            <div class="flex justify-between p-2 bg-gray-700 rounded">
+                                <span>Emergency (Police/Fire):</span>
+                                <span class="text-red-300">100/101</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Protocols -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-gray-800 rounded-xl p-6">
+                        <h4 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-2 text-yellow-400"></i>
+                            Emergency Protocols
+                        </h4>
+                        <div class="space-y-4">
+                            <div class="border-l-4 border-red-500 pl-4">
+                                <h5 class="font-medium text-red-300">Track Blockage</h5>
+                                <p class="text-sm text-gray-300">• Arrange re-routing via alternate loop lines<br>• Inform DRM Control & DSO immediately</p>
+                            </div>
+                            <div class="border-l-4 border-yellow-500 pl-4">
+                                <h5 class="font-medium text-yellow-300">OHE Failure</h5>
+                                <p class="text-sm text-gray-300">• Detach electric loco<br>• Requisition diesel relief engine<br>• Work under Paper Line Clear (T/369(3b))</p>
+                            </div>
+                            <div class="border-l-4 border-orange-500 pl-4">
+                                <h5 class="font-medium text-orange-300">Fog Conditions</h5>
+                                <p class="text-sm text-gray-300">• Apply speed restrictions per Fog Manual<br>• Provide Fog Safety Device (FSD)<br>• Display fog signals as per SR</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-800 rounded-xl p-6">
+                        <h4 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-route mr-2 text-green-400"></i>
+                            Crossing & Looping Rules
+                        </h4>
+                        <div class="space-y-4">
+                            <div class="border-l-4 border-blue-500 pl-4">
+                                <h5 class="font-medium text-blue-300">Loop Stations</h5>
+                                <p class="text-sm text-gray-300">Designated: Aligarh, Etawah, Tundla<br>Goods trains to be looped at these stations</p>
+                            </div>
+                            <div class="border-l-4 border-green-500 pl-4">
+                                <h5 class="font-medium text-green-300">Crew Change Points</h5>
+                                <p class="text-sm text-gray-300">Ghaziabad, Aligarh, Tundla<br>Ensure proper crew relief arrangements</p>
+                            </div>
+                            <div class="border-l-4 border-purple-500 pl-4">
+                                <h5 class="font-medium text-purple-300">Authority Requirements</h5>
+                                <p class="text-sm text-gray-300">Premium train diversions: HQ approval required<br>Container priority upgrade: CC approval</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -560,11 +1069,113 @@
         </main>
     </div>
 
+    <!-- Custom Modal Dialogs -->
+    <!-- Accept Modal -->
+    <div id="acceptModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4 border border-gray-600 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-white flex items-center">
+                    <i class="fas fa-check-circle mr-2 text-green-400"></i>
+                    Accept Recommendation
+                </h3>
+                <button onclick="closeModal('acceptModal')" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="acceptModalContent" class="mb-6">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+            <div class="flex space-x-3">
+                <button id="confirmAccept" class="flex-1 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-white font-medium transition-colors">
+                    <i class="fas fa-check mr-2"></i>Accept
+                </button>
+                <button onclick="closeModal('acceptModal')" class="flex-1 bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg text-white font-medium transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modify Modal -->
+    <div id="modifyModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-gray-800 rounded-xl p-6 max-w-lg w-full mx-4 border border-gray-600 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-white flex items-center">
+                    <i class="fas fa-edit mr-2 text-yellow-400"></i>
+                    Modify Recommendation
+                </h3>
+                <button onclick="closeModal('modifyModal')" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="modifyModalContent" class="mb-6">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Modification Details:</label>
+                <textarea id="modificationText" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-yellow-500" placeholder="Enter your modification details..."></textarea>
+            </div>
+            <div class="flex space-x-3">
+                <button id="confirmModify" class="flex-1 bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg text-white font-medium transition-colors">
+                    <i class="fas fa-edit mr-2"></i>Modify
+                </button>
+                <button onclick="closeModal('modifyModal')" class="flex-1 bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg text-white font-medium transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reject Modal -->
+    <div id="rejectModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4 border border-gray-600 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-white flex items-center">
+                    <i class="fas fa-times-circle mr-2 text-red-400"></i>
+                    Reject Recommendation
+                </h3>
+                <button onclick="closeModal('rejectModal')" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="rejectModalContent" class="mb-6">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Reason for Rejection:</label>
+                <select id="rejectionReason" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500 mb-3">
+                    <option value="">Select a reason...</option>
+                    <option value="safety_concern">Safety Concern</option>
+                    <option value="operational_conflict">Operational Conflict</option>
+                    <option value="resource_unavailable">Resource Unavailable</option>
+                    <option value="schedule_conflict">Schedule Conflict</option>
+                    <option value="maintenance_required">Maintenance Required</option>
+                    <option value="other">Other (specify below)</option>
+                </select>
+                <textarea id="rejectionDetails" rows="2" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-red-500" placeholder="Additional details (optional)..."></textarea>
+            </div>
+            <div class="flex space-x-3">
+                <button id="confirmReject" class="flex-1 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white font-medium transition-colors">
+                    <i class="fas fa-times mr-2"></i>Reject
+                </button>
+                <button onclick="closeModal('rejectModal')" class="flex-1 bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg text-white font-medium transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Dashboard initializing...');
             initializeDashboard();
+            
+            // Initialize modal handlers
+            if (!window.modalsInitialized) {
+                initializeModalHandlers();
+                window.modalsInitialized = true;
+            }
         });
 
         function initializeDashboard() {
@@ -579,10 +1190,26 @@
             // Live traffic is initialized when section is shown
             // Timers
             setInterval(updateLastUpdated, 30000); // Update every 30 seconds
-            setInterval(refreshScheduling, 30000);
-            setInterval(renderSectionView, 30000);
-            setInterval(renderAlerts, 30000);
-            setInterval(renderLiveTraffic, 30000);
+            // Only refresh sections when they are active
+            setInterval(() => {
+                const activeSection = document.querySelector('.section-content:not(.hidden)');
+                if (activeSection) {
+                    const sectionId = activeSection.id;
+                    if (sectionId === 'scheduling-section') {
+                        updateSchedulingTime();
+                        populateSchedulingTable();
+                        updateSchedulingStats();
+                        populateActionSummary();
+                        // Don't show notification for auto-refresh
+                    } else if (sectionId === 'section-view-section') {
+                        renderSectionView();
+                    } else if (sectionId === 'alerts-section') {
+                        renderAlerts();
+                    } else if (sectionId === 'live-traffic-section') {
+                        renderLiveTraffic();
+                    }
+                }
+            }, 30000);
             setInterval(refreshTrainPositions, 15000); // Refresh train positions every 15 seconds
 
             // Hash-based routing
@@ -817,6 +1444,7 @@
                 'decision-panel': 'AI Decision Panel',
                 'alerts': 'Disruption Alerts',
                 'reports': 'Reports & Analytics',
+                'sop': 'SOP & Emergency Protocols',
                 'settings': 'Settings'
             };
             document.getElementById('page-title').textContent = titles[sectionName] || 'Dashboard';
@@ -829,6 +1457,31 @@
             // Initialize Leaflet map when switching to Live Traffic
             if (sectionName === 'live-traffic') {
                 initRailwayMap();
+            }
+            
+            // Initialize SOP section when switching to SOP
+            if (sectionName === 'sop') {
+                initSOPSection();
+            }
+            
+            // Initialize Reports section when switching to Reports
+            if (sectionName === 'reports') {
+                initReportsSection();
+            }
+            
+            // Initialize Dashboard section when switching to Dashboard
+            if (sectionName === 'dashboard') {
+                initDashboardSection();
+            }
+            
+            // Initialize Scheduling section when switching to Scheduling
+            if (sectionName === 'scheduling') {
+                initSchedulingSection();
+            }
+            
+            // Initialize Decision Panel when switching to Decision Panel
+            if (sectionName === 'decision-panel') {
+                initDecisionPanel();
             }
         }
 
@@ -843,23 +1496,26 @@
         }
 
         // ---------------- Delhi → Kanpur Section Data ----------------
+        // SOP Route: Delhi Jn. (DLI) – Kanpur Central (CNB) via GZB, ALJN, TDL, ETW
         const delhiKanpurStations = [
-            { name: 'New Delhi', code: 'NDLS', lat: 28.6139, lng: 77.2090, km: 0 },
-            { name: 'Ghaziabad', code: 'GZB', lat: 28.6692, lng: 77.4538, km: 19 },
-            { name: 'Agra Cantt', code: 'AGC', lat: 27.1767, lng: 78.0081, km: 188 },
-            { name: 'Tundla', code: 'TDL', lat: 27.2146, lng: 78.2360, km: 214 },
-            { name: 'Kanpur Central', code: 'CNB', lat: 26.4499, lng: 80.3319, km: 441 }
+            { name: 'Delhi Jn', code: 'DLI', lat: 28.6139, lng: 77.2090, km: 0, crewChange: false, loopStation: false },
+            { name: 'Ghaziabad', code: 'GZB', lat: 28.6692, lng: 77.4538, km: 19, crewChange: true, loopStation: false },
+            { name: 'Aligarh', code: 'ALJN', lat: 27.8974, lng: 78.0880, km: 130, crewChange: true, loopStation: true },
+            { name: 'Tundla', code: 'TDL', lat: 27.2146, lng: 78.2360, km: 214, crewChange: true, loopStation: true },
+            { name: 'Etawah', code: 'ETW', lat: 26.7751, lng: 79.0134, km: 298, crewChange: false, loopStation: true },
+            { name: 'Kanpur Central', code: 'CNB', lat: 26.4499, lng: 80.3319, km: 441, crewChange: false, loopStation: false }
         ];
 
+        // SOP-Compliant Train Data with 6-Tier Priority System
         const mockTrains = [
-            { id:'12951', name:'Mumbai Rajdhani', type:'Express', priority:'High', currentStation:'Ghaziabad', nextStation:'Agra Cantt', eta:'18:45', delay:5, status:'delayed', ai:'Priority clearance at Agra', lat: 28.2, lng: 77.6 },
-            { id:'12033', name:'Kanpur Shatabdi', type:'Express', priority:'High', currentStation:'Agra Cantt', nextStation:'Tundla', eta:'19:20', delay:0, status:'ontime', ai:'Maintain schedule', lat: 27.1, lng: 78.1 },
-            { id:'12452', name:'Shram Shakti', type:'Express', priority:'Medium', currentStation:'Tundla', nextStation:'Kanpur', eta:'20:15', delay:8, status:'delayed', ai:'Platform 3 recommended', lat: 27.0, lng: 78.8 },
-            { id:'14218', name:'Unchahar Exp', type:'Express', priority:'Medium', currentStation:'Delhi', nextStation:'Ghaziabad', eta:'17:30', delay:0, status:'ontime', ai:'On schedule departure', lat: 28.5, lng: 77.3 },
-            { id:'14854', name:'Marudhar Exp', type:'Express', priority:'Medium', currentStation:'Ghaziabad', nextStation:'Agra Cantt', eta:'19:45', delay:12, status:'critical', ai:'Reroute via alternate track', lat: 28.0, lng: 77.8 },
-            { id:'22418', name:'Mahamana Exp', type:'Express', priority:'High', currentStation:'Agra Cantt', nextStation:'Tundla', eta:'18:55', delay:3, status:'delayed', ai:'Clear signals ahead', lat: 27.2, lng: 78.0 },
-            { id:'18238', name:'Chhatisgarh Exp', type:'Express', priority:'Low', currentStation:'Tundla', nextStation:'Kanpur', eta:'21:30', delay:0, status:'ontime', ai:'Normal operations', lat: 26.8, lng: 79.2 },
-            { id:'12004', name:'Lucknow Swarn Shatabdi', type:'Express', priority:'High', currentStation:'Delhi', nextStation:'Ghaziabad', eta:'16:45', delay:0, status:'ontime', ai:'Express priority maintained', lat: 28.6, lng: 77.2 }
+            { id:'12951', name:'Mumbai Rajdhani', type:'Premium', sopPriority:1, category:'Rajdhani', priority:'Premium', currentStation:'Ghaziabad', nextStation:'Aligarh', eta:'18:45', delay:5, status:'delayed', ai:'Priority clearance required - SOP Tier 1', lat: 28.2, lng: 77.6, arr:'18:40', dep:'18:45', section:'GZB-ALJN', crewChange:'GZB', loco:'WAP-7', coaches:24 },
+            { id:'12004', name:'Lucknow Swarn Shatabdi', type:'Premium', sopPriority:1, category:'Shatabdi', priority:'Premium', currentStation:'Delhi Jn', nextStation:'Ghaziabad', eta:'16:45', delay:0, status:'ontime', ai:'Premium train - maintain schedule per SOP', lat: 28.6, lng: 77.2, arr:'16:40', dep:'16:45', section:'DLI-GZB', crewChange:'GZB', loco:'WAP-7', coaches:20 },
+            { id:'22418', name:'Prayagraj Express', type:'Superfast', sopPriority:2, category:'Mail/Express', priority:'High', currentStation:'Aligarh', nextStation:'Tundla', eta:'18:55', delay:3, status:'delayed', ai:'Superfast precedence - check crossing at TDL', lat: 27.2, lng: 78.0, arr:'18:52', dep:'18:55', section:'ALJN-TDL', crewChange:'ALJN', loco:'WAP-4', coaches:22 },
+            { id:'14854', name:'Marudhar Express', type:'Superfast', sopPriority:2, category:'Mail/Express', priority:'High', currentStation:'Ghaziabad', nextStation:'Aligarh', eta:'19:45', delay:12, status:'critical', ai:'Reroute via loop - inform Chief Controller', lat: 28.0, lng: 77.8, arr:'19:33', dep:'19:45', section:'GZB-ALJN', crewChange:'GZB', loco:'WAP-4', coaches:20 },
+            { id:'14218', name:'Unchahar Express', type:'Passenger', sopPriority:3, category:'Passenger', priority:'Medium', currentStation:'Delhi Jn', nextStation:'Ghaziabad', eta:'17:30', delay:0, status:'ontime', ai:'Passenger service - normal precedence', lat: 28.5, lng: 77.3, arr:'17:25', dep:'17:30', section:'DLI-GZB', crewChange:'GZB', loco:'WAP-4', coaches:18 },
+            { id:'63394', name:'MEMU Passenger', type:'Passenger', sopPriority:3, category:'MEMU', priority:'Medium', currentStation:'Tundla', nextStation:'Etawah', eta:'20:15', delay:8, status:'delayed', ai:'MEMU service - loop at ETW if required', lat: 27.0, lng: 78.8, arr:'20:07', dep:'20:15', section:'TDL-ETW', crewChange:'TDL', loco:'MEMU', coaches:12 },
+            { id:'BOXN4501', name:'Container Special', type:'Goods', sopPriority:4, category:'Container', priority:'Medium', currentStation:'Tundla', nextStation:'Kanpur Central', eta:'21:30', delay:0, status:'ontime', ai:'Container priority - may upgrade with CC approval', lat: 26.8, lng: 79.2, arr:'21:25', dep:'21:30', section:'TDL-CNB', crewChange:'TDL', loco:'WAG-9', coaches:58 },
+            { id:'COAL2234', name:'Coal Rake', type:'Goods', sopPriority:5, category:'General Goods', priority:'Low', currentStation:'Aligarh', nextStation:'Tundla', eta:'22:45', delay:15, status:'delayed', ai:'General goods - loop at designated stations', lat: 27.1, lng: 78.1, arr:'22:30', dep:'22:45', section:'ALJN-TDL', crewChange:'ALJN', loco:'WAG-7', coaches:59 }
         ];
 
         // Live traffic simulated positions
@@ -906,32 +1562,1500 @@
             });
 
             tbody.innerHTML = filtered.map(t => `
-                <tr class="hover:bg-gray-750 hover:bg-gray-700">
-                    <td class="px-4 py-3 font-medium">${t.id} - ${t.name}</td>
-                    <td class="px-4 py-3">${t.type}</td>
-                    <td class="px-4 py-3">
-                        <span class="px-2 py-1 rounded text-xs ${badgeColor(t.priority)}">${t.priority}</span>
+                <tr class="hover:bg-gray-700 transition-colors border-b border-gray-700/50">
+                    <td class="px-4 py-4">
+                        <div class="font-medium text-white">${t.id}</div>
+                        <div class="text-sm text-gray-400">${t.name}</div>
                     </td>
-                    <td class="px-4 py-3">${t.arr}</td>
-                    <td class="px-4 py-3">${t.dep}</td>
-                    <td class="px-4 py-3">${t.delay ? t.delay + ' min' : 'On time'}</td>
-                    <td class="px-4 py-3">${t.section}</td>
-                    <td class="px-4 py-3 text-gray-300">${t.ai}</td>
-                    <td class="px-4 py-3">
-                        <button class="bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-xs" onclick="acceptRecommendation('${t.id}')">Accept</button>
-                        <button class="bg-yellow-600 hover:bg-yellow-700 px-3 py-1 rounded text-xs" onclick="modifyRecommendation('${t.id}')">Modify</button>
-                        <button class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-xs" onclick="rejectRecommendation('${t.id}')">Reject</button>
+                    <td class="px-4 py-4">
+                        <span class="px-2 py-1 rounded text-xs bg-blue-600/20 text-blue-300 border border-blue-600/40">${t.type}</span>
+                    </td>
+                    <td class="px-4 py-4">
+                        <div class="space-y-1">
+                            <span class="px-2 py-1 rounded text-xs ${getSopPriorityBadge(t.sopPriority)}">SOP-${t.sopPriority}</span>
+                            <div class="text-xs text-gray-400">${t.category}</div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-4 text-gray-300">${t.arr || 'undefined'}</td>
+                    <td class="px-4 py-4 text-gray-300">${t.dep || 'undefined'}</td>
+                    <td class="px-4 py-4">
+                        <span class="px-2 py-1 rounded text-xs ${getDelayBadge(t.delay)}">${t.delay ? t.delay + ' min' : 'On time'}</span>
+                    </td>
+                    <td class="px-4 py-4">
+                        <span class="px-2 py-1 rounded text-xs bg-gray-600/20 text-gray-300 border border-gray-600/40">${t.section || 'undefined'}</span>
+                    </td>
+                    <td class="px-4 py-4 text-gray-300 max-w-xs">
+                        <div class="flex items-center">
+                            <i class="fas fa-robot text-blue-400 mr-2"></i>
+                            <span class="text-sm">${t.ai}</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-4">
+                        <div class="flex space-x-1">
+                            <button class="bg-green-600 hover:bg-green-700 px-2 py-1 rounded text-xs transition-colors" onclick="window.acceptSchedulingRecommendation('${t.id}')">
+                                <i class="fas fa-check mr-1"></i>Accept
+                            </button>
+                            <button class="bg-yellow-600 hover:bg-yellow-700 px-2 py-1 rounded text-xs transition-colors" onclick="window.modifySchedulingRecommendation('${t.id}')">
+                                <i class="fas fa-edit mr-1"></i>Modify
+                            </button>
+                            <button class="bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-xs transition-colors" onclick="window.rejectSchedulingRecommendation('${t.id}')">
+                                <i class="fas fa-times mr-1"></i>Reject
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
         }
 
+        // SOP-Based Priority System
+        const sopPrioritySystem = {
+            1: { name: 'Premium Trains', color: 'bg-purple-600/20 text-purple-300 border border-purple-600/40', examples: 'Rajdhani, Shatabdi, Vande Bharat, Gatimaan' },
+            2: { name: 'Superfast/Mail/Express', color: 'bg-red-600/20 text-red-300 border border-red-600/40', examples: 'Prayagraj Exp, Neelanchal Exp' },
+            3: { name: 'Passenger/EMU/MEMU', color: 'bg-yellow-600/20 text-yellow-300 border border-yellow-600/40', examples: 'MEMU services, Intercity passengers' },
+            4: { name: 'Goods – Perishable/Containers', color: 'bg-blue-600/20 text-blue-300 border border-blue-600/40', examples: 'Milk, POL, Container services' },
+            5: { name: 'Goods – General', color: 'bg-gray-600/20 text-gray-300 border border-gray-600/40', examples: 'Coal, Cement, Empty rakes' },
+            6: { name: 'Departmental Trains', color: 'bg-green-600/20 text-green-300 border border-green-600/40', examples: 'Ballast, Material trains' }
+        };
+
         function badgeColor(priority) {
+            // Legacy support for old priority system
             switch(priority) {
+                case 'Premium': return 'bg-purple-600/20 text-purple-300 border border-purple-600/40';
                 case 'High': return 'bg-red-600/20 text-red-300 border border-red-600/40';
                 case 'Medium': return 'bg-yellow-600/20 text-yellow-300 border border-yellow-600/40';
+                case 'Low': return 'bg-gray-600/20 text-gray-300 border border-gray-600/40';
                 default: return 'bg-green-600/20 text-green-300 border border-green-600/40';
             }
+        }
+
+        function getSopPriorityBadge(sopPriority) {
+            const priority = sopPrioritySystem[sopPriority];
+            return priority ? priority.color : 'bg-gray-600/20 text-gray-300 border border-gray-600/40';
+        }
+
+        // Initialize SOP Section
+        function initSOPSection() {
+            const priorityList = document.getElementById('sop-priority-list');
+            if (!priorityList) return;
+            
+            priorityList.innerHTML = Object.entries(sopPrioritySystem).map(([tier, info]) => `
+                <div class="flex items-center justify-between p-3 bg-gray-700 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <span class="px-2 py-1 rounded text-xs ${info.color}">Tier ${tier}</span>
+                        <div>
+                            <div class="font-medium text-white">${info.name}</div>
+                            <div class="text-xs text-gray-400">${info.examples}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-medium text-blue-300">Priority ${tier}</div>
+                        <div class="text-xs text-gray-400">SOP Compliant</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize Reports Section
+        function initReportsSection() {
+            populateStationPerformance();
+            populateSOPCompliance();
+            populateCriticalEvents();
+            initializeCategoryChart();
+            updateKPICards();
+        }
+
+        // Populate Station Performance Table
+        function populateStationPerformance() {
+            const stationData = [
+                { station: 'Delhi Jn (DLI)', trains: 89, punctuality: 91.2, avgDelay: 3.1 },
+                { station: 'Ghaziabad (GZB)', trains: 76, punctuality: 88.7, avgDelay: 4.3 },
+                { station: 'Aligarh (ALJN)', trains: 54, punctuality: 85.1, avgDelay: 5.8 },
+                { station: 'Tundla (TDL)', trains: 67, punctuality: 89.4, avgDelay: 3.9 },
+                { station: 'Etawah (ETW)', trains: 43, punctuality: 92.3, avgDelay: 2.7 },
+                { station: 'Kanpur Central (CNB)', trains: 71, punctuality: 87.6, avgDelay: 4.5 }
+            ];
+
+            const tbody = document.getElementById('station-performance-table');
+            if (!tbody) return;
+
+            tbody.innerHTML = stationData.map(station => `
+                <tr class="hover:bg-gray-700">
+                    <td class="py-2 font-medium">${station.station}</td>
+                    <td class="py-2 text-right text-blue-300">${station.trains}</td>
+                    <td class="py-2 text-right">
+                        <span class="px-2 py-1 rounded text-xs ${station.punctuality >= 90 ? 'bg-green-600/20 text-green-300' : station.punctuality >= 85 ? 'bg-yellow-600/20 text-yellow-300' : 'bg-red-600/20 text-red-300'}">${station.punctuality}%</span>
+                    </td>
+                    <td class="py-2 text-right text-gray-300">${station.avgDelay} min</td>
+                </tr>
+            `).join('');
+        }
+
+        // Populate SOP Compliance Report
+        function populateSOPCompliance() {
+            const complianceData = [
+                { category: 'Premium Train Priority', compliance: 98.2, status: 'excellent' },
+                { category: 'Crew Change Adherence', compliance: 94.7, status: 'good' },
+                { category: 'Loop Station Usage', compliance: 91.3, status: 'good' },
+                { category: 'Emergency Protocol', compliance: 96.8, status: 'excellent' },
+                { category: 'Authority Requirements', compliance: 89.1, status: 'fair' }
+            ];
+
+            const container = document.getElementById('sop-compliance-report');
+            if (!container) return;
+
+            container.innerHTML = complianceData.map(item => `
+                <div class="flex items-center justify-between p-3 bg-gray-700 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 rounded-full ${item.status === 'excellent' ? 'bg-green-400' : item.status === 'good' ? 'bg-yellow-400' : 'bg-red-400'}"></div>
+                        <div>
+                            <div class="font-medium text-white">${item.category}</div>
+                            <div class="text-xs text-gray-400">Last 7 days</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-medium text-blue-300">${item.compliance}%</div>
+                        <div class="text-xs text-gray-400 capitalize">${item.status}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Populate Critical Events Table
+        function populateCriticalEvents() {
+            const eventsData = [
+                { time: '10:45', type: 'Signal Failure', train: 'Section GZB-ALJN', description: 'Signal S-204 showing red aspect', impact: 'Medium', status: 'Resolved' },
+                { time: '09:23', type: 'Train Delay', train: '12951 Rajdhani', description: 'Late departure from Delhi Jn', impact: 'High', status: 'Monitoring' },
+                { time: '08:15', type: 'Track Maintenance', train: 'Section TDL-ETW', description: 'Scheduled track inspection', impact: 'Low', status: 'Completed' },
+                { time: '07:52', type: 'Crew Change', train: '22418 Prayagraj Exp', description: 'Delayed crew relief at Aligarh', impact: 'Medium', status: 'Resolved' },
+                { time: '06:30', type: 'Weather Alert', train: 'All Sections', description: 'Fog conditions reported', impact: 'High', status: 'Active' }
+            ];
+
+            const tbody = document.getElementById('critical-events-table');
+            if (!tbody) return;
+
+            tbody.innerHTML = eventsData.map(event => `
+                <tr class="hover:bg-gray-700">
+                    <td class="py-2 text-gray-300">${event.time}</td>
+                    <td class="py-2">
+                        <span class="px-2 py-1 rounded text-xs ${event.type === 'Signal Failure' ? 'bg-red-600/20 text-red-300' : event.type === 'Train Delay' ? 'bg-yellow-600/20 text-yellow-300' : 'bg-blue-600/20 text-blue-300'}">${event.type}</span>
+                    </td>
+                    <td class="py-2 text-gray-300">${event.train}</td>
+                    <td class="py-2 text-gray-300">${event.description}</td>
+                    <td class="py-2">
+                        <span class="px-2 py-1 rounded text-xs ${event.impact === 'High' ? 'bg-red-600/20 text-red-300' : event.impact === 'Medium' ? 'bg-yellow-600/20 text-yellow-300' : 'bg-green-600/20 text-green-300'}">${event.impact}</span>
+                    </td>
+                    <td class="py-2">
+                        <span class="px-2 py-1 rounded text-xs ${event.status === 'Resolved' || event.status === 'Completed' ? 'bg-green-600/20 text-green-300' : event.status === 'Active' ? 'bg-red-600/20 text-red-300' : 'bg-yellow-600/20 text-yellow-300'}">${event.status}</span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Initialize Category Chart
+        function initializeCategoryChart() {
+            const ctx = document.getElementById('categoryChart');
+            if (!ctx) return;
+
+            new Chart(ctx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Premium (Tier 1)', 'Superfast (Tier 2)', 'Passenger (Tier 3)', 'Container (Tier 4)', 'General Goods (Tier 5)'],
+                    datasets: [{
+                        data: [15, 35, 25, 15, 10],
+                        backgroundColor: ['#9333ea', '#dc2626', '#eab308', '#2563eb', '#6b7280'],
+                        borderColor: '#111827',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#d4d4d4', font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+
+        // Update KPI Cards with Dynamic Data
+        function updateKPICards() {
+            // Calculate real-time KPIs from train data
+            const totalTrains = mockTrains.length;
+            const onTimeTrains = mockTrains.filter(t => !t.delay || t.delay === 0).length;
+            const punctuality = ((onTimeTrains / totalTrains) * 100).toFixed(1);
+            const avgDelay = mockTrains.reduce((sum, t) => sum + (t.delay || 0), 0) / totalTrains;
+            const sopCompliantActions = 94.7; // Based on recent actions
+
+            document.getElementById('kpi-punctuality').textContent = punctuality + '%';
+            document.getElementById('kpi-throughput').textContent = totalTrains;
+            document.getElementById('kpi-avg-delay').textContent = avgDelay.toFixed(1) + ' min';
+            document.getElementById('kpi-efficiency').textContent = sopCompliantActions + '%';
+        }
+
+        // Export Report Functions
+        window.exportReport = function(format) {
+            if (format === 'csv') {
+                exportToCSV();
+            } else if (format === 'pdf') {
+                window.print();
+            }
+        };
+
+        function exportToCSV() {
+            const csvData = [
+                ['Station', 'Trains', 'Punctuality', 'Avg Delay'],
+                ['Delhi Jn (DLI)', '89', '91.2%', '3.1 min'],
+                ['Ghaziabad (GZB)', '76', '88.7%', '4.3 min'],
+                ['Aligarh (ALJN)', '54', '85.1%', '5.8 min'],
+                ['Tundla (TDL)', '67', '89.4%', '3.9 min'],
+                ['Etawah (ETW)', '43', '92.3%', '2.7 min'],
+                ['Kanpur Central (CNB)', '71', '87.6%', '4.5 min']
+            ];
+
+            const csvContent = csvData.map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'railway_performance_report.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        window.refreshReports = function() {
+            initReportsSection();
+            showNotification('Reports refreshed successfully', 'success');
+        };
+
+        // Initialize Dashboard Section
+        function initDashboardSection() {
+            updateLastUpdateTime();
+            populateSectionStatusMap();
+            populatePriorityAlerts();
+            populateRecentActivity();
+            populateTrainStatusSummary();
+            updateDashboardKPIs();
+        }
+
+        // Update Last Update Time
+        function updateLastUpdateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            const element = document.getElementById('last-update-time');
+            if (element) {
+                element.textContent = timeStr;
+            }
+        }
+
+        // Populate Section Status Map
+        function populateSectionStatusMap() {
+            const sectionData = [
+                { from: 'Delhi Jn', to: 'Ghaziabad', status: 'clear', trains: 2, distance: '19 km' },
+                { from: 'Ghaziabad', to: 'Aligarh', status: 'occupied', trains: 3, distance: '111 km' },
+                { from: 'Aligarh', to: 'Tundla', status: 'clear', trains: 1, distance: '84 km' },
+                { from: 'Tundla', to: 'Etawah', status: 'maintenance', trains: 0, distance: '84 km' },
+                { from: 'Etawah', to: 'Kanpur Central', status: 'occupied', trains: 2, distance: '143 km' }
+            ];
+
+            const container = document.getElementById('section-status-map');
+            if (!container) return;
+
+            container.innerHTML = sectionData.map(section => {
+                const statusColor = {
+                    'clear': 'bg-green-500',
+                    'occupied': 'bg-yellow-500', 
+                    'maintenance': 'bg-red-500'
+                }[section.status];
+
+                const statusText = {
+                    'clear': 'Clear',
+                    'occupied': 'Occupied',
+                    'maintenance': 'Maintenance'
+                }[section.status];
+
+                return `
+                    <div class="flex items-center justify-between p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 ${statusColor} rounded-full"></div>
+                            <div>
+                                <div class="font-medium text-white">${section.from} → ${section.to}</div>
+                                <div class="text-xs text-gray-400">${section.distance}</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-medium text-white">${statusText}</div>
+                            <div class="text-xs text-gray-400">${section.trains} trains</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Populate Priority Alerts
+        function populatePriorityAlerts() {
+            const alertsData = [
+                { type: 'delay', message: '12951 Rajdhani delayed by 5 min', priority: 'high', time: '2m ago' },
+                { type: 'signal', message: 'Signal S-204 showing caution', priority: 'medium', time: '5m ago' },
+                { type: 'weather', message: 'Fog alert for early morning', priority: 'low', time: '15m ago' }
+            ];
+
+            const container = document.getElementById('priority-alerts');
+            if (!container) return;
+
+            container.innerHTML = alertsData.map(alert => {
+                const priorityColor = {
+                    'high': 'bg-red-500',
+                    'medium': 'bg-yellow-500',
+                    'low': 'bg-blue-500'
+                }[alert.priority];
+
+                const typeIcon = {
+                    'delay': 'fa-clock',
+                    'signal': 'fa-traffic-light',
+                    'weather': 'fa-cloud'
+                }[alert.type];
+
+                return `
+                    <div class="flex items-start space-x-3 p-3 bg-gray-700 rounded-lg">
+                        <div class="w-2 h-2 ${priorityColor} rounded-full mt-2"></div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <i class="fas ${typeIcon} text-xs text-gray-400"></i>
+                                <span class="text-xs text-gray-400 uppercase">${alert.priority} Priority</span>
+                            </div>
+                            <div class="text-sm text-white">${alert.message}</div>
+                            <div class="text-xs text-gray-400 mt-1">${alert.time}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Populate Recent Activity
+        function populateRecentActivity() {
+            const activities = [
+                { type: 'success', message: '12004 Shatabdi departed Delhi Jn on time', time: '1m ago', icon: 'fa-check-circle' },
+                { type: 'warning', message: '22418 Prayagraj Exp delayed at Aligarh', time: '3m ago', icon: 'fa-exclamation-triangle' },
+                { type: 'info', message: 'Platform 3 assigned to 14854 Marudhar Exp', time: '5m ago', icon: 'fa-info-circle' },
+                { type: 'success', message: 'Signal S-101 cleared - Normal operations', time: '7m ago', icon: 'fa-traffic-light' },
+                { type: 'info', message: 'Crew change completed at Ghaziabad', time: '10m ago', icon: 'fa-users' },
+                { type: 'warning', message: 'Track inspection scheduled at TDL-ETW', time: '12m ago', icon: 'fa-tools' }
+            ];
+
+            const container = document.getElementById('recent-activity');
+            if (!container) return;
+
+            container.innerHTML = activities.map(activity => {
+                const typeColor = {
+                    'success': 'bg-green-400',
+                    'warning': 'bg-yellow-400',
+                    'info': 'bg-blue-400'
+                }[activity.type];
+
+                return `
+                    <div class="flex items-center space-x-3 p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
+                        <div class="w-2 h-2 ${typeColor} rounded-full animate-pulse"></div>
+                        <div class="flex-1">
+                            <div class="text-sm text-white">${activity.message}</div>
+                        </div>
+                        <div class="text-xs text-gray-400">${activity.time}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Populate Train Status Summary
+        function populateTrainStatusSummary() {
+            const trainSummary = mockTrains.slice(0, 6).map(train => ({
+                id: train.id,
+                name: train.name,
+                status: train.status,
+                delay: train.delay,
+                section: train.section,
+                priority: train.sopPriority
+            }));
+
+            const container = document.getElementById('train-status-summary');
+            if (!container) return;
+
+            container.innerHTML = trainSummary.map(train => {
+                const statusColor = {
+                    'ontime': 'text-green-400',
+                    'delayed': 'text-yellow-400',
+                    'critical': 'text-red-400'
+                }[train.status] || 'text-gray-400';
+
+                const priorityBadge = getSopPriorityBadge(train.priority);
+
+                return `
+                    <div class="flex items-center justify-between p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-2 h-2 ${statusColor.replace('text-', 'bg-')} rounded-full"></div>
+                            <div>
+                                <div class="font-medium text-white">${train.id}</div>
+                                <div class="text-xs text-gray-400">${train.name}</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs ${statusColor}">
+                                ${train.delay ? `+${train.delay}m` : 'On Time'}
+                            </div>
+                            <div class="text-xs text-gray-400">${train.section}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update Dashboard KPIs
+        function updateDashboardKPIs() {
+            // Calculate real-time metrics from train data
+            const totalTrains = mockTrains.length;
+            const onTimeTrains = mockTrains.filter(t => !t.delay || t.delay === 0).length;
+            const punctuality = Math.round((onTimeTrains / totalTrains) * 100);
+            const avgDelay = mockTrains.reduce((sum, t) => sum + (t.delay || 0), 0) / totalTrains;
+
+            // Update KPI displays
+            document.getElementById('active-trains').textContent = totalTrains;
+            document.getElementById('ontime-percent').textContent = punctuality + '%';
+            document.getElementById('avg-delay').textContent = avgDelay.toFixed(1) + 'm';
+            
+            // Update section utilization based on occupied sections
+            const occupiedSections = 3; // From section status map
+            const totalSections = 5;
+            const utilization = Math.round((occupiedSections / totalSections) * 100);
+            document.getElementById('section-util').textContent = utilization + '%';
+        }
+
+        // Auto-refresh dashboard every 30 seconds
+        setInterval(() => {
+            if (document.getElementById('dashboard-section').classList.contains('section-content') && 
+                !document.getElementById('dashboard-section').classList.contains('hidden')) {
+                updateLastUpdateTime();
+                updateDashboardKPIs();
+                // Add some randomness to simulate live updates
+                if (Math.random() > 0.7) {
+                    populateRecentActivity();
+                }
+            }
+        }, 30000);
+
+        // Initialize Scheduling Section
+        function initSchedulingSection() {
+            updateSchedulingTime();
+            populateSchedulingTable();
+            updateSchedulingStats();
+            populateActionSummary();
+            setupSchedulingFilters();
+            
+            // Initialize modal handlers if not already done
+            if (!window.modalsInitialized) {
+                initializeModalHandlers();
+                window.modalsInitialized = true;
+            }
+        }
+
+        // Update Scheduling Time
+        function updateSchedulingTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            const element = document.getElementById('sched-updated');
+            if (element) {
+                element.textContent = timeStr;
+            }
+        }
+
+        // Populate Enhanced Scheduling Table
+        function populateSchedulingTable() {
+            const tbody = document.getElementById('sched-table');
+            if (!tbody) return;
+
+            const filtered = getFilteredTrains();
+            
+            tbody.innerHTML = filtered.map(train => `
+                <tr class="hover:bg-gray-700/50 transition-colors border-b border-gray-700/30" data-train-id="${train.id}">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 ${getStatusDot(train.status)} rounded-full"></div>
+                            <div>
+                                <div class="font-semibold text-white">${train.id}</div>
+                                <div class="text-sm text-gray-400">${train.name}</div>
+                                <div class="text-xs text-gray-500">${train.loco} • ${train.coaches} coaches</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="space-y-1">
+                            <span class="px-3 py-1 rounded-full text-xs font-medium ${getSopPriorityBadge(train.sopPriority)}">
+                                SOP Tier ${train.sopPriority}
+                            </span>
+                            <div class="text-xs text-gray-400">${train.category}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div>
+                            <div class="font-medium text-white">${train.currentStation}</div>
+                            <div class="text-sm text-gray-400">→ ${train.nextStation}</div>
+                            <div class="text-xs text-gray-500">${train.section}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="space-y-1">
+                            <div class="text-sm">
+                                <span class="text-gray-400">Arr:</span> 
+                                <span class="text-white">${train.arr}</span>
+                            </div>
+                            <div class="text-sm">
+                                <span class="text-gray-400">Dep:</span> 
+                                <span class="text-white">${train.dep}</span>
+                            </div>
+                            <div class="text-xs text-gray-500">ETA: ${train.eta}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="space-y-2">
+                            <span class="px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(train.status)}">
+                                ${getStatusText(train.status)}
+                            </span>
+                            ${train.delay ? `<div class="text-xs text-yellow-400">+${train.delay} min delay</div>` : ''}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-start space-x-2">
+                            <i class="fas fa-robot text-cyan-400 mt-1 text-xs"></i>
+                            <div class="text-sm text-gray-300 leading-relaxed">${train.ai}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex flex-col space-y-2">
+                            <button class="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-center" 
+                                    onclick="acceptSchedulingRecommendation('${train.id}')">
+                                <i class="fas fa-check mr-1"></i>Accept
+                            </button>
+                            <button class="bg-yellow-600 hover:bg-yellow-700 px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-center" 
+                                    onclick="modifySchedulingRecommendation('${train.id}')">
+                                <i class="fas fa-edit mr-1"></i>Modify
+                            </button>
+                            <button class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-center" 
+                                    onclick="rejectSchedulingRecommendation('${train.id}')">
+                                <i class="fas fa-times mr-1"></i>Reject
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Helper Functions for Scheduling
+        function getStatusDot(status) {
+            switch(status) {
+                case 'ontime': return 'bg-green-400 animate-pulse';
+                case 'delayed': return 'bg-yellow-400 animate-pulse';
+                case 'critical': return 'bg-red-400 animate-pulse';
+                default: return 'bg-gray-400';
+            }
+        }
+
+        function getStatusBadge(status) {
+            switch(status) {
+                case 'ontime': return 'bg-green-600/20 text-green-300 border border-green-600/40';
+                case 'delayed': return 'bg-yellow-600/20 text-yellow-300 border border-yellow-600/40';
+                case 'critical': return 'bg-red-600/20 text-red-300 border border-red-600/40';
+                default: return 'bg-gray-600/20 text-gray-300 border border-gray-600/40';
+            }
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'ontime': return 'On Time';
+                case 'delayed': return 'Delayed';
+                case 'critical': return 'Critical';
+                default: return 'Unknown';
+            }
+        }
+
+        // Update Scheduling Stats
+        function updateSchedulingStats() {
+            const total = mockTrains.length;
+            const ontime = mockTrains.filter(t => t.status === 'ontime').length;
+            const delayed = mockTrains.filter(t => t.status === 'delayed').length;
+            const critical = mockTrains.filter(t => t.status === 'critical').length;
+
+            document.getElementById('total-trains').textContent = total;
+            document.getElementById('ontime-trains').textContent = ontime;
+            document.getElementById('delayed-trains').textContent = delayed;
+            document.getElementById('critical-trains').textContent = critical;
+        }
+
+        // Get Filtered Trains
+        function getFilteredTrains() {
+            let filtered = [...mockTrains];
+            
+            const searchTerm = document.getElementById('sched-filter')?.value.toLowerCase() || '';
+            const priorityFilter = document.getElementById('sched-priority')?.value || '';
+
+            if (searchTerm) {
+                filtered = filtered.filter(train => 
+                    train.id.toLowerCase().includes(searchTerm) ||
+                    train.name.toLowerCase().includes(searchTerm) ||
+                    train.currentStation.toLowerCase().includes(searchTerm) ||
+                    train.nextStation.toLowerCase().includes(searchTerm) ||
+                    train.section.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            if (priorityFilter) {
+                filtered = filtered.filter(train => train.sopPriority.toString() === priorityFilter);
+            }
+
+            return filtered;
+        }
+
+        // Setup Scheduling Filters
+        function setupSchedulingFilters() {
+            const filterInput = document.getElementById('sched-filter');
+            const prioritySelect = document.getElementById('sched-priority');
+
+            if (filterInput) {
+                filterInput.addEventListener('input', () => {
+                    populateSchedulingTable();
+                });
+            }
+
+            if (prioritySelect) {
+                prioritySelect.addEventListener('change', () => {
+                    populateSchedulingTable();
+                });
+            }
+        }
+
+        // Populate Action Summary
+        function populateActionSummary() {
+            const actions = [
+                { time: '11:45', action: 'Accepted AI recommendation for 12951 Rajdhani', user: 'Controller A', type: 'accept' },
+                { time: '11:42', action: 'Modified schedule for 22418 Prayagraj Express', user: 'Controller A', type: 'modify' },
+                { time: '11:38', action: 'Rejected delay proposal for 14854 Marudhar Express', user: 'Controller A', type: 'reject' },
+                { time: '11:35', action: 'Accepted priority change for BOXN4501 Container', user: 'Controller A', type: 'accept' }
+            ];
+
+            const container = document.getElementById('action-summary');
+            if (!container) return;
+
+            container.innerHTML = actions.map(action => {
+                const typeColor = {
+                    'accept': 'text-green-400',
+                    'modify': 'text-yellow-400',
+                    'reject': 'text-red-400'
+                }[action.type];
+
+                const typeIcon = {
+                    'accept': 'fa-check',
+                    'modify': 'fa-edit',
+                    'reject': 'fa-times'
+                }[action.type];
+
+                return `
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas ${typeIcon} ${typeColor} text-xs"></i>
+                            <span class="text-gray-300">${action.action}</span>
+                        </div>
+                        <div class="text-xs text-gray-400">${action.time}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Modal Management Functions
+        let currentTrainId = null;
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            currentTrainId = null;
+            
+            // Clear form fields
+            if (modalId === 'modifyModal') {
+                document.getElementById('modificationText').value = '';
+            }
+            if (modalId === 'rejectModal') {
+                document.getElementById('rejectionReason').value = '';
+                document.getElementById('rejectionDetails').value = '';
+            }
+        }
+
+        // Enhanced Action Functions with Custom Modals
+        window.acceptSchedulingRecommendation = function(trainId) {
+            const train = mockTrains.find(t => t.id === trainId);
+            if (!train) return;
+
+            currentTrainId = trainId;
+            
+            // Check SOP compliance
+            const compliance = checkSOPCompliance(trainId, 'accept');
+            
+            // Populate modal content
+            const modalContent = document.getElementById('acceptModalContent');
+            modalContent.innerHTML = `
+                <div class="space-y-4">
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <div class="w-3 h-3 ${getStatusDot(train.status)} rounded-full"></div>
+                            <div>
+                                <div class="font-semibold text-white">${train.id} - ${train.name}</div>
+                                <div class="text-sm text-gray-400">SOP Tier ${train.sopPriority} • ${train.category}</div>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-300">
+                            <div><strong>Current:</strong> ${train.currentStation} → ${train.nextStation}</div>
+                            <div><strong>Schedule:</strong> Arr ${train.arr}, Dep ${train.dep}</div>
+                            <div><strong>Status:</strong> ${getStatusText(train.status)}${train.delay ? ` (+${train.delay} min)` : ''}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-cyan-900/20 border border-cyan-600/40 rounded-lg p-4">
+                        <div class="flex items-start space-x-2">
+                            <i class="fas fa-robot text-cyan-400 mt-1"></i>
+                            <div>
+                                <div class="font-medium text-cyan-300 mb-1">AI Recommendation:</div>
+                                <div class="text-sm text-gray-300">${train.ai}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${!compliance.compliant ? `
+                        <div class="bg-yellow-900/20 border border-yellow-600/40 rounded-lg p-4">
+                            <div class="flex items-start space-x-2">
+                                <i class="fas fa-exclamation-triangle text-yellow-400 mt-1"></i>
+                                <div>
+                                    <div class="font-medium text-yellow-300 mb-1">SOP Compliance Notes:</div>
+                                    <div class="text-sm text-gray-300">${compliance.message}</div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            openModal('acceptModal');
+        };
+
+        window.modifySchedulingRecommendation = function(trainId) {
+            const train = mockTrains.find(t => t.id === trainId);
+            if (!train) return;
+
+            currentTrainId = trainId;
+            
+            // Check SOP compliance for modifications
+            const compliance = checkSOPCompliance(trainId, 'modify');
+            
+            // Populate modal content
+            const modalContent = document.getElementById('modifyModalContent');
+            modalContent.innerHTML = `
+                <div class="space-y-4">
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <div class="w-3 h-3 ${getStatusDot(train.status)} rounded-full"></div>
+                            <div>
+                                <div class="font-semibold text-white">${train.id} - ${train.name}</div>
+                                <div class="text-sm text-gray-400">SOP Tier ${train.sopPriority} • ${train.category}</div>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-300">
+                            <div><strong>Current:</strong> ${train.currentStation} → ${train.nextStation}</div>
+                            <div><strong>Schedule:</strong> Arr ${train.arr}, Dep ${train.dep}</div>
+                            <div><strong>Status:</strong> ${getStatusText(train.status)}${train.delay ? ` (+${train.delay} min)` : ''}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-cyan-900/20 border border-cyan-600/40 rounded-lg p-4">
+                        <div class="flex items-start space-x-2">
+                            <i class="fas fa-robot text-cyan-400 mt-1"></i>
+                            <div>
+                                <div class="font-medium text-cyan-300 mb-1">Current AI Recommendation:</div>
+                                <div class="text-sm text-gray-300">${train.ai}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${!compliance.compliant ? `
+                        <div class="bg-yellow-900/20 border border-yellow-600/40 rounded-lg p-4">
+                            <div class="flex items-start space-x-2">
+                                <i class="fas fa-exclamation-triangle text-yellow-400 mt-1"></i>
+                                <div>
+                                    <div class="font-medium text-yellow-300 mb-1">SOP Compliance Notes:</div>
+                                    <div class="text-sm text-gray-300">${compliance.message}</div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${train.sopPriority === 1 ? `
+                        <div class="bg-red-900/20 border border-red-600/40 rounded-lg p-4">
+                            <div class="flex items-start space-x-2">
+                                <i class="fas fa-shield-alt text-red-400 mt-1"></i>
+                                <div>
+                                    <div class="font-medium text-red-300 mb-1">Authority Required:</div>
+                                    <div class="text-sm text-gray-300">Premium train modifications require HQ approval</div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            openModal('modifyModal');
+        };
+
+        window.rejectSchedulingRecommendation = function(trainId) {
+            const train = mockTrains.find(t => t.id === trainId);
+            if (!train) return;
+
+            currentTrainId = trainId;
+            
+            // Populate modal content
+            const modalContent = document.getElementById('rejectModalContent');
+            modalContent.innerHTML = `
+                <div class="space-y-4">
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <div class="w-3 h-3 ${getStatusDot(train.status)} rounded-full"></div>
+                            <div>
+                                <div class="font-semibold text-white">${train.id} - ${train.name}</div>
+                                <div class="text-sm text-gray-400">SOP Tier ${train.sopPriority} • ${train.category}</div>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-300">
+                            <div><strong>Current:</strong> ${train.currentStation} → ${train.nextStation}</div>
+                            <div><strong>Schedule:</strong> Arr ${train.arr}, Dep ${train.dep}</div>
+                            <div><strong>Status:</strong> ${getStatusText(train.status)}${train.delay ? ` (+${train.delay} min)` : ''}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-cyan-900/20 border border-cyan-600/40 rounded-lg p-4">
+                        <div class="flex items-start space-x-2">
+                            <i class="fas fa-robot text-cyan-400 mt-1"></i>
+                            <div>
+                                <div class="font-medium text-cyan-300 mb-1">AI Recommendation to Reject:</div>
+                                <div class="text-sm text-gray-300">${train.ai}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            openModal('rejectModal');
+        };
+
+        // Modal Event Handlers - Initialize once
+        function initializeModalHandlers() {
+            // Accept Modal Handler
+            document.getElementById('confirmAccept').addEventListener('click', function() {
+                if (!currentTrainId) return;
+                
+                const train = mockTrains.find(t => t.id === currentTrainId);
+                const sopTier = train.sopPriority;
+                
+                // Update UI immediately
+                const row = document.querySelector(`tr[data-train-id="${currentTrainId}"]`);
+                if (row) {
+                    row.style.backgroundColor = 'rgba(34, 197, 94, 0.1)';
+                    row.style.border = '2px solid rgba(34, 197, 94, 0.3)';
+                    
+                    // Update action buttons
+                    const actionCell = row.querySelector('td:last-child');
+                    if (actionCell) {
+                        actionCell.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <span class="px-3 py-2 bg-green-600/20 text-green-300 rounded-lg text-xs font-medium border border-green-600/40">
+                                    <i class="fas fa-check mr-1"></i>Accepted
+                                </span>
+                            </div>
+                        `;
+                    }
+                }
+                
+                // Add to audit trail
+                addToAuditTrail(`Controller accepted scheduling recommendation for Train ${currentTrainId} (SOP Tier ${sopTier})`, 'AI + Human', 'green');
+                
+                // Show notification
+                showNotification(`Train ${currentTrainId} recommendation accepted - SOP Tier ${sopTier}`, 'success');
+                
+                // Update action summary
+                setTimeout(() => {
+                    populateActionSummary();
+                }, 500);
+                
+                closeModal('acceptModal');
+            });
+
+            // Modify Modal Handler
+            document.getElementById('confirmModify').addEventListener('click', function() {
+                if (!currentTrainId) return;
+                
+                const modification = document.getElementById('modificationText').value.trim();
+                if (!modification) {
+                    showNotification('Please enter modification details', 'error');
+                    return;
+                }
+                
+                const train = mockTrains.find(t => t.id === currentTrainId);
+                const sopTier = train.sopPriority;
+                const requiresApproval = train.sopPriority === 1;
+                
+                // Update UI immediately
+                const row = document.querySelector(`tr[data-train-id="${currentTrainId}"]`);
+                if (row) {
+                    row.style.backgroundColor = 'rgba(251, 191, 36, 0.1)';
+                    row.style.border = '2px solid rgba(251, 191, 36, 0.3)';
+                    
+                    // Update action buttons
+                    const actionCell = row.querySelector('td:last-child');
+                    if (actionCell) {
+                        actionCell.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <span class="px-3 py-2 bg-yellow-600/20 text-yellow-300 rounded-lg text-xs font-medium border border-yellow-600/40">
+                                    <i class="fas fa-edit mr-1"></i>Modified${requiresApproval ? ' (HQ)' : ''}
+                                </span>
+                            </div>
+                        `;
+                    }
+                }
+                
+                // Add to audit trail
+                addToAuditTrail(`Controller modified scheduling recommendation for Train ${currentTrainId} (SOP Tier ${sopTier}): ${modification}${requiresApproval ? ' [HQ APPROVAL REQUIRED]' : ''}`, 'Human Override', 'yellow');
+                
+                // Show notification
+                const notificationMessage = requiresApproval ? 
+                    `Train ${currentTrainId} modified - HQ approval required` : 
+                    `Train ${currentTrainId} recommendation modified`;
+                showNotification(notificationMessage, 'warning');
+                
+                // Update action summary
+                setTimeout(() => {
+                    populateActionSummary();
+                }, 500);
+                
+                closeModal('modifyModal');
+            });
+
+            // Reject Modal Handler
+            document.getElementById('confirmReject').addEventListener('click', function() {
+                if (!currentTrainId) return;
+                
+                const reason = document.getElementById('rejectionReason').value;
+                const details = document.getElementById('rejectionDetails').value.trim();
+                
+                if (!reason) {
+                    showNotification('Please select a reason for rejection', 'error');
+                    return;
+                }
+                
+                const train = mockTrains.find(t => t.id === currentTrainId);
+                const sopTier = train.sopPriority;
+                
+                let fullReason = reason.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                if (details) {
+                    fullReason += `: ${details}`;
+                }
+                
+                // Update UI immediately
+                const row = document.querySelector(`tr[data-train-id="${currentTrainId}"]`);
+                if (row) {
+                    row.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                    row.style.border = '2px solid rgba(239, 68, 68, 0.3)';
+                    
+                    // Update action buttons
+                    const actionCell = row.querySelector('td:last-child');
+                    if (actionCell) {
+                        actionCell.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <span class="px-3 py-2 bg-red-600/20 text-red-300 rounded-lg text-xs font-medium border border-red-600/40">
+                                    <i class="fas fa-times mr-1"></i>Rejected
+                                </span>
+                            </div>
+                        `;
+                    }
+                }
+                
+                // Add to audit trail
+                addToAuditTrail(`Controller rejected scheduling recommendation for Train ${currentTrainId} (SOP Tier ${sopTier}): ${fullReason}`, 'Human Override', 'red');
+                
+                // Show notification
+                showNotification(`Train ${currentTrainId} recommendation rejected - SOP Tier ${sopTier}`, 'error');
+                
+                // Update action summary
+                setTimeout(() => {
+                    populateActionSummary();
+                }, 500);
+                
+                closeModal('rejectModal');
+            });
+
+            // Close modals when clicking outside
+            document.querySelectorAll('[id$="Modal"]').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeModal(this.id);
+                    }
+                });
+            });
+
+            // Close modals with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const openModal = document.querySelector('[id$="Modal"]:not(.hidden)');
+                    if (openModal) {
+                        closeModal(openModal.id);
+                    }
+                }
+            });
+        }
+
+        // Refresh Scheduling Function
+        window.refreshScheduling = function() {
+            updateSchedulingTime();
+            populateSchedulingTable();
+            updateSchedulingStats();
+            populateActionSummary();
+            showNotification('Scheduling data refreshed', 'success');
+        };
+
+        // Initialize Decision Panel
+        function initDecisionPanel() {
+            updateDecisionTime();
+            populateAIRecommendations();
+        }
+
+        // Update Decision Panel Time
+        function updateDecisionTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            const element = document.getElementById('decision-updated');
+            if (element) {
+                element.textContent = timeStr;
+            }
+        }
+
+        // Populate AI Recommendations with Comprehensive Analysis
+        function populateAIRecommendations() {
+            const recommendations = [
+                {
+                    id: 1,
+                    type: 'priority_override',
+                    title: 'SOP Priority Conflict Resolution',
+                    confidence: 94,
+                    priority: 'critical',
+                    trains: ['12951 Rajdhani', '14854 Marudhar Express'],
+                    situation: 'Two trains approaching Aligarh Junction simultaneously',
+                    recommendation: 'Grant priority to 12951 Rajdhani (SOP Tier 1) over 14854 Marudhar Express (SOP Tier 2)',
+                    reasoning: 'SOP mandates premium train priority. Rajdhani carries 400+ passengers with connecting services at Kanpur. Delaying would violate SOP Tier 1 protocols.',
+                    impacts: {
+                        positive: ['SOP compliance maintained', '400+ passengers on schedule', 'Network punctuality +2.3%'],
+                        negative: ['Marudhar Express delayed 6 minutes', 'Freight slot adjustment needed'],
+                        safety: 'No safety concerns - standard priority protocol',
+                        financial: 'Passenger compensation avoided: ₹2.4L'
+                    },
+                    alternatives: [
+                        'Loop Marudhar Express at Aligarh (recommended)',
+                        'Reduce Rajdhani speed by 10 km/h (not recommended)'
+                    ],
+                    timeframe: '3 minutes to decision point',
+                    sopCompliance: 'Fully compliant with SOP Tier 1 priority rules'
+                },
+                {
+                    id: 2,
+                    type: 'route_optimization',
+                    title: 'Proactive Route Diversion',
+                    confidence: 87,
+                    priority: 'high',
+                    trains: ['63394 MEMU Passenger'],
+                    situation: 'Track maintenance scheduled at Tundla-Etawah section in 20 minutes',
+                    recommendation: 'Divert 63394 MEMU via loop line at Tundla to avoid maintenance conflict',
+                    reasoning: 'Maintenance window cannot be delayed. Proactive diversion prevents service disruption and maintains passenger service.',
+                    impacts: {
+                        positive: ['Maintenance schedule maintained', 'No service cancellation', 'Passenger service continuity'],
+                        negative: ['Journey time +4 minutes', 'Loop line utilization'],
+                        safety: 'Enhanced safety - avoids maintenance zone conflict',
+                        financial: 'Maintenance delay cost avoided: ₹50K'
+                    },
+                    alternatives: [
+                        'Use loop line (recommended)',
+                        'Delay maintenance by 30 minutes (costly)',
+                        'Short-terminate at Tundla (passenger impact)'
+                    ],
+                    timeframe: '15 minutes to implement',
+                    sopCompliance: 'Compliant with maintenance safety protocols'
+                },
+                {
+                    id: 3,
+                    type: 'crew_optimization',
+                    title: 'Crew Change Efficiency',
+                    confidence: 78,
+                    priority: 'medium',
+                    trains: ['22418 Prayagraj Express'],
+                    situation: 'Crew duty hours approaching limit at Ghaziabad',
+                    recommendation: 'Expedite crew change at Ghaziabad to prevent duty hour violation',
+                    reasoning: 'Current crew approaching 8-hour duty limit. Quick crew change prevents regulatory violation and maintains schedule.',
+                    impacts: {
+                        positive: ['Regulatory compliance', 'Schedule maintained', 'Crew welfare protected'],
+                        negative: ['2-minute station stop extension', 'Relief crew deployment'],
+                        safety: 'Critical - prevents fatigued crew operation',
+                        financial: 'Penalty avoidance: ₹25K'
+                    },
+                    alternatives: [
+                        'Quick crew change at GZB (recommended)',
+                        'Crew change at next major station (risky)',
+                        'Speed restriction with current crew (unsafe)'
+                    ],
+                    timeframe: '8 minutes to crew limit',
+                    sopCompliance: 'Essential for crew duty hour compliance'
+                }
+            ];
+
+            const container = document.getElementById('ai-recommendations');
+            if (!container) return;
+
+            container.innerHTML = recommendations.map(rec => `
+                <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-xl">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r ${getPriorityGradient(rec.priority)} p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas ${getTypeIcon(rec.type)} text-white text-xl"></i>
+                                <div>
+                                    <h4 class="text-lg font-semibold text-white">${rec.title}</h4>
+                                    <div class="flex items-center space-x-4 text-sm text-white/80">
+                                        <span>Confidence: ${rec.confidence}%</span>
+                                        <span>Priority: ${rec.priority.toUpperCase()}</span>
+                                        <span>⏱️ ${rec.timeframe}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="acceptDecisionRecommendation(${rec.id})" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                    <i class="fas fa-check mr-2"></i>Accept
+                                </button>
+                                <button onclick="modifyDecisionRecommendation(${rec.id})" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                    <i class="fas fa-edit mr-2"></i>Modify
+                                </button>
+                                <button onclick="rejectDecisionRecommendation(${rec.id})" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                    <i class="fas fa-times mr-2"></i>Reject
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="p-6 space-y-6">
+                        <!-- Situation & Trains -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="bg-gray-700 rounded-lg p-4">
+                                <h5 class="font-semibold text-white mb-2 flex items-center">
+                                    <i class="fas fa-info-circle mr-2 text-blue-400"></i>Current Situation
+                                </h5>
+                                <p class="text-gray-300 text-sm">${rec.situation}</p>
+                                <div class="mt-3">
+                                    <div class="text-xs text-gray-400 mb-1">Affected Trains:</div>
+                                    <div class="flex flex-wrap gap-2">
+                                        ${rec.trains.map(train => `<span class="px-2 py-1 bg-blue-600/20 text-blue-300 rounded text-xs">${train}</span>`).join('')}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-700 rounded-lg p-4">
+                                <h5 class="font-semibold text-white mb-2 flex items-center">
+                                    <i class="fas fa-lightbulb mr-2 text-yellow-400"></i>AI Recommendation
+                                </h5>
+                                <p class="text-gray-300 text-sm">${rec.recommendation}</p>
+                                <div class="mt-3">
+                                    <div class="text-xs text-gray-400 mb-1">SOP Compliance:</div>
+                                    <span class="px-2 py-1 bg-green-600/20 text-green-300 rounded text-xs">${rec.sopCompliance}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reasoning -->
+                        <div class="bg-cyan-900/20 border border-cyan-600/40 rounded-lg p-4">
+                            <h5 class="font-semibold text-cyan-300 mb-2 flex items-center">
+                                <i class="fas fa-brain mr-2"></i>AI Analysis & Reasoning
+                            </h5>
+                            <p class="text-gray-300 text-sm">${rec.reasoning}</p>
+                        </div>
+
+                        <!-- Impact Analysis -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <div class="bg-green-900/20 border border-green-600/40 rounded-lg p-4">
+                                <h6 class="font-medium text-green-300 mb-2 flex items-center">
+                                    <i class="fas fa-plus-circle mr-2"></i>Positive Impacts
+                                </h6>
+                                <ul class="text-sm text-gray-300 space-y-1">
+                                    ${rec.impacts.positive.map(impact => `<li>• ${impact}</li>`).join('')}
+                                </ul>
+                            </div>
+
+                            <div class="bg-red-900/20 border border-red-600/40 rounded-lg p-4">
+                                <h6 class="font-medium text-red-300 mb-2 flex items-center">
+                                    <i class="fas fa-minus-circle mr-2"></i>Negative Impacts
+                                </h6>
+                                <ul class="text-sm text-gray-300 space-y-1">
+                                    ${rec.impacts.negative.map(impact => `<li>• ${impact}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Safety & Financial -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <div class="bg-orange-900/20 border border-orange-600/40 rounded-lg p-4">
+                                <h6 class="font-medium text-orange-300 mb-2 flex items-center">
+                                    <i class="fas fa-shield-alt mr-2"></i>Safety Assessment
+                                </h6>
+                                <p class="text-sm text-gray-300">${rec.impacts.safety}</p>
+                            </div>
+
+                            <div class="bg-purple-900/20 border border-purple-600/40 rounded-lg p-4">
+                                <h6 class="font-medium text-purple-300 mb-2 flex items-center">
+                                    <i class="fas fa-rupee-sign mr-2"></i>Financial Impact
+                                </h6>
+                                <p class="text-sm text-gray-300">${rec.impacts.financial}</p>
+                            </div>
+                        </div>
+
+                        <!-- Alternatives -->
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <h6 class="font-medium text-white mb-2 flex items-center">
+                                <i class="fas fa-route mr-2 text-gray-400"></i>Alternative Options
+                            </h6>
+                            <ul class="text-sm text-gray-300 space-y-1">
+                                ${rec.alternatives.map(alt => `<li>• ${alt}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Helper functions for decision panel
+        function getPriorityGradient(priority) {
+            switch(priority) {
+                case 'critical': return 'from-red-600 to-red-700';
+                case 'high': return 'from-orange-600 to-orange-700';
+                case 'medium': return 'from-yellow-600 to-yellow-700';
+                default: return 'from-blue-600 to-blue-700';
+            }
+        }
+
+        function getTypeIcon(type) {
+            switch(type) {
+                case 'priority_override': return 'fa-exclamation-triangle';
+                case 'route_optimization': return 'fa-route';
+                case 'crew_optimization': return 'fa-users';
+                default: return 'fa-lightbulb';
+            }
+        }
+
+        // Decision action functions
+        window.acceptDecisionRecommendation = function(id) {
+            console.log('Accept decision clicked for ID:', id);
+            
+            // Update the specific recommendation card
+            const button = event.target.closest('button');
+            const card = button.closest('.bg-gray-800');
+            if (card) {
+                card.style.backgroundColor = 'rgba(34, 197, 94, 0.1)';
+                card.style.border = '2px solid rgba(34, 197, 94, 0.3)';
+                
+                // Update buttons
+                const buttonContainer = card.querySelector('.flex.space-x-2');
+                if (buttonContainer) {
+                    buttonContainer.innerHTML = `
+                        <span class="px-4 py-2 bg-green-600/20 text-green-300 rounded-lg text-sm font-medium border border-green-600/40">
+                            <i class="fas fa-check mr-2"></i>Accepted
+                        </span>
+                    `;
+                }
+            }
+            
+            addToAuditTrail(`Controller accepted AI decision recommendation #${id}`, 'AI + Human', 'green');
+            showNotification(`Decision recommendation #${id} accepted`, 'success');
+        };
+
+        window.modifyDecisionRecommendation = function(id) {
+            console.log('Modify decision clicked for ID:', id);
+            
+            const modification = prompt('Enter your modification to this AI recommendation:');
+            if (modification && modification.trim()) {
+                // Update the specific recommendation card
+                const button = event.target.closest('button');
+                const card = button.closest('.bg-gray-800');
+                if (card) {
+                    card.style.backgroundColor = 'rgba(251, 191, 36, 0.1)';
+                    card.style.border = '2px solid rgba(251, 191, 36, 0.3)';
+                    
+                    // Update buttons
+                    const buttonContainer = card.querySelector('.flex.space-x-2');
+                    if (buttonContainer) {
+                        buttonContainer.innerHTML = `
+                            <span class="px-4 py-2 bg-yellow-600/20 text-yellow-300 rounded-lg text-sm font-medium border border-yellow-600/40">
+                                <i class="fas fa-edit mr-2"></i>Modified
+                            </span>
+                        `;
+                    }
+                }
+                
+                addToAuditTrail(`Controller modified AI decision recommendation #${id}: ${modification}`, 'Human Override', 'yellow');
+                showNotification(`Decision recommendation #${id} modified`, 'warning');
+            }
+        };
+
+        window.rejectDecisionRecommendation = function(id) {
+            console.log('Reject decision clicked for ID:', id);
+            
+            const reason = prompt('Reason for rejecting this AI recommendation:');
+            if (reason && reason.trim()) {
+                // Update the specific recommendation card
+                const button = event.target.closest('button');
+                const card = button.closest('.bg-gray-800');
+                if (card) {
+                    card.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                    card.style.border = '2px solid rgba(239, 68, 68, 0.3)';
+                    
+                    // Update buttons
+                    const buttonContainer = card.querySelector('.flex.space-x-2');
+                    if (buttonContainer) {
+                        buttonContainer.innerHTML = `
+                            <span class="px-4 py-2 bg-red-600/20 text-red-300 rounded-lg text-sm font-medium border border-red-600/40">
+                                <i class="fas fa-times mr-2"></i>Rejected
+                            </span>
+                        `;
+                    }
+                }
+                
+                addToAuditTrail(`Controller rejected AI decision recommendation #${id}: ${reason}`, 'Human Override', 'red');
+                showNotification(`Decision recommendation #${id} rejected`, 'error');
+            }
+        };
+
+        // Export Scheduling Function
+        window.exportScheduling = function() {
+            const csvData = [
+                ['Train ID', 'Name', 'SOP Priority', 'Current Station', 'Next Station', 'Status', 'Delay', 'AI Recommendation']
+            ];
+            
+            mockTrains.forEach(train => {
+                csvData.push([
+                    train.id,
+                    train.name,
+                    `Tier ${train.sopPriority}`,
+                    train.currentStation,
+                    train.nextStation,
+                    train.status,
+                    train.delay ? `${train.delay} min` : 'On Time',
+                    train.ai
+                ]);
+            });
+
+            const csvContent = csvData.map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'train_scheduling_report.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showNotification('Scheduling report exported', 'success');
+        };
+
+        function getDelayBadge(delay) {
+            if (!delay || delay === 0) {
+                return 'bg-green-600/20 text-green-300 border border-green-600/40';
+            } else if (delay <= 5) {
+                return 'bg-yellow-600/20 text-yellow-300 border border-yellow-600/40';
+            } else {
+                return 'bg-red-600/20 text-red-300 border border-red-600/40';
+            }
+        }
+
+        // SOP Compliance Checker
+        function checkSOPCompliance(trainId, action) {
+            const train = mockTrains.find(t => t.id === trainId);
+            if (!train) return { compliant: true, message: '' };
+            
+            const warnings = [];
+            
+            // Check if Premium train requires HQ approval for major changes
+            if (train.sopPriority === 1 && (action === 'modify' || action === 'reroute')) {
+                warnings.push('⚠️ Premium train modification requires HQ approval per SOP');
+            }
+            
+            // Check if container train upgrade needs CC approval
+            if (train.category === 'Container' && action === 'priority_upgrade') {
+                warnings.push('⚠️ Container priority upgrade requires Chief Controller approval');
+            }
+            
+            // Check crew change compliance
+            if (train.crewChange && action === 'delay') {
+                warnings.push('ℹ️ Consider crew relief arrangements at ' + train.crewChange);
+            }
+            
+            return {
+                compliant: warnings.length === 0,
+                warnings: warnings,
+                message: warnings.join('\n')
+            };
+        }
+
+        // Notification system - Make globally accessible
+        window.showNotification = function(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full`;
+            
+            const colors = {
+                success: 'bg-green-600 text-white',
+                error: 'bg-red-600 text-white',
+                warning: 'bg-yellow-600 text-white',
+                info: 'bg-blue-600 text-white'
+            };
+            
+            notification.className += ` ${colors[type] || colors.info}`;
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : type === 'warning' ? 'edit' : 'info'} mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
         }
 
         // ---------------- Section View Render ----------------
@@ -1074,22 +3198,120 @@
                 }
             });
 
-            // Occupancy Chart
+            // Occupancy Chart (Interactive)
             const occupancyCtx = document.getElementById('occupancyChart').getContext('2d');
-            new Chart(occupancyCtx, {
+            const occDataValues = [65, 25, 10];
+            const occLabels = ['Occupied', 'Available', 'Maintenance'];
+            const occColors = ['#ef4444', '#10b981', '#6b7280'];
+            const occChart = new Chart(occupancyCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Occupied', 'Available', 'Maintenance'],
+                    labels: occLabels,
                     datasets: [{
-                        data: [65, 25, 10],
-                        backgroundColor: ['#ef4444', '#10b981', '#6b7280']
+                        data: occDataValues,
+                        backgroundColor: occColors,
+                        borderColor: '#111827',
+                        borderWidth: 2,
+                        hoverOffset: 8
                     }]
                 },
                 options: {
                     responsive: true,
-                    plugins: { legend: { position: 'bottom' } }
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#d4d4d4' } },
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function(ctx) {
+                                    const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+                                    const value = ctx.parsed;
+                                    const pct = total ? ((value/total)*100).toFixed(1) : 0;
+                                    return `${ctx.label}: ${value} (${pct}%)`;
+                                }
+                            }
+                        }
+                    },
+                    onHover: (evt, activeEls) => {
+                        const el = evt.native?.target || evt.target;
+                        el.style.cursor = activeEls?.length ? 'pointer' : 'default';
+                    },
+                    onClick: (evt, activeEls) => {
+                        if (!activeEls.length) return;
+                        const idx = activeEls[0].index;
+                        showOccupancyDetails(idx, occLabels, occDataValues, occColors);
+                    }
                 }
             });
+
+            // Hook close button for details panel
+            const closeOccBtn = document.getElementById('closeOccDetails');
+            if (closeOccBtn) {
+                closeOccBtn.addEventListener('click', () => {
+                    const panel = document.getElementById('occupancyDetails');
+                    if (panel) panel.classList.add('hidden');
+                });
+            }
+        }
+
+        // Show occupancy details in the panel under the chart
+        function showOccupancyDetails(index, labels, values, colors) {
+            const panel = document.getElementById('occupancyDetails');
+            const body = document.getElementById('occupancyDetailsBody');
+            if (!panel || !body) return;
+
+            const total = values.reduce((a,b)=>a+b,0) || 0;
+            const value = values[index] || 0;
+            const pct = total ? ((value/total)*100).toFixed(1) : 0;
+            const label = labels[index] || '—';
+            const color = colors[index] || '#9ca3af';
+
+            // Example domain-specific details for each slice
+            const detailsByLabel = {
+                'Occupied': {
+                    title: 'Occupied Tracks/Platforms',
+                    tips: [
+                        'Check conflicting routes and pending departures.',
+                        'Consider priority override for delayed expresses.',
+                        'Monitor headway to avoid bunching.'
+                    ]
+                },
+                'Available': {
+                    title: 'Available Capacity',
+                    tips: [
+                        'Allocate to incoming trains to reduce dwell times.',
+                        'Use for overtakes where feasible.',
+                        'Plan proactive platforming for the next 15–30 min.'
+                    ]
+                },
+                'Maintenance': {
+                    title: 'Maintenance Blocks',
+                    tips: [
+                        'Reroute low-priority traffic if possible.',
+                        'Communicate expected clearance time to controllers.',
+                        'Track work-window adherence to minimize impact.'
+                    ]
+                }
+            };
+
+            const info = detailsByLabel[label] || { title: label, tips: [] };
+
+            body.innerHTML = `
+                <div class="flex items-center mb-2">
+                    <div class="w-3 h-3 rounded-full mr-2" style="background:${color}"></div>
+                    <div class="font-semibold">${info.title}</div>
+                </div>
+                <div class="text-gray-300 mb-2">${label}: <span class="text-white font-medium">${value}</span> (${pct}%)</div>
+                ${info.tips.length ? `
+                    <div class="text-xs text-gray-400 mb-1">AI Hints:</div>
+                    <ul class="list-disc list-inside text-sm text-gray-200 space-y-1">
+                        ${info.tips.map(t=>`<li>${t}</li>`).join('')}
+                    </ul>
+                ` : ''}
+            `;
+
+            panel.classList.remove('hidden');
+            // Smooth scroll into view for better UX
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         // Decision panel functions
@@ -1126,7 +3348,7 @@
             }
         }
 
-        function addToAuditTrail(message, type, color) {
+        window.addToAuditTrail = function(message, type, color) {
             const auditTrail = document.getElementById('audit-trail');
             const now = new Date();
             const timeStr = now.toLocaleTimeString().substring(0, 5);

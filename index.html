@@ -855,6 +855,32 @@
             }
         };
 
+        // Time parsing and delay computation helpers
+        function parseHHMM(timeStr) {
+            if (!timeStr || typeof timeStr !== 'string') return null;
+            const m = timeStr.match(/^(\d{1,2}):(\d{2})$/);
+            if (!m) return null;
+            let h = parseInt(m[1], 10);
+            let min = parseInt(m[2], 10);
+            if (isNaN(h) || isNaN(min) || h < 0 || h > 23 || min < 0 || min > 59) return null;
+            return h * 60 + min;
+        }
+
+        function computeEffectiveDelay(scheduled, actual, fallbackDelay) {
+            const s = parseHHMM(scheduled);
+            const a = parseHHMM(actual);
+            if (s !== null && a !== null) {
+                // compute same-day non-negative delay in minutes
+                let diff = a - s;
+                if (diff < 0) {
+                    // handle after-midnight wrap (rare in our UI but safe)
+                    diff += 24 * 60;
+                }
+                return Math.max(0, diff);
+            }
+            return typeof fallbackDelay === 'number' ? fallbackDelay : null;
+        }
+
         // Render helper to display schedule, status, and map from any data shape (API or mock)
         function renderFromData(data, fallbackTrainNo) {
             // Top info with null checks
@@ -885,7 +911,8 @@
             const stationName = recent?.stationName || recent?.name || recent?.code || '—';
             const schDep = recent?.schDep || recent?.scheduledDeparture || '—';
             const actDep = recent?.actDep || recent?.actualDeparture || '—';
-            const delayMin = recent?.delayMinutes ?? data?.delayMinutes ?? null;
+            const providedDelay = recent?.delayMinutes ?? data?.delayMinutes ?? null;
+            const delayMin = computeEffectiveDelay(schDep, actDep, providedDelay);
             const reason = recent?.delayReason || data?.delayReason || null;
 
             const recentStationName = document.getElementById('recentStationName');
@@ -900,7 +927,7 @@
 
             if (delayBadge && delayReason) {
                 const delayDetails = document.getElementById('delayDetails');
-                console.log('Delay processing:', { delayMin, reason, data: data.delayMinutes, status: data.status });
+                console.log('Delay processing:', { delayMin, reason, provided: providedDelay, dataStatus: data.status });
                 
                 if (delayMin && delayMin > 0) {
                     delayBadge.textContent = `Delayed ${delayMin} min`;
@@ -1325,7 +1352,8 @@
             const stationName = recent?.stationName || recent?.name || recent?.code || '—';
             const schDep = recent?.schDep || recent?.scheduledDeparture || '—';
             const actDep = recent?.actDep || recent?.actualDeparture || '—';
-            const delayMin = recent?.delayMinutes ?? data?.delayMinutes ?? null;
+            const providedDelay2 = recent?.delayMinutes ?? data?.delayMinutes ?? null;
+            const delayMin = computeEffectiveDelay(schDep, actDep, providedDelay2);
             const reason = recent?.delayReason || data?.delayReason || null;
 
             document.getElementById('recentStationName').textContent = stationName;

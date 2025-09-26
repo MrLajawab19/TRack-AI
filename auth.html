@@ -533,6 +533,41 @@
             document.getElementById('authSuccess').classList.add('hidden');
         }
 
+        // Convert Firebase/auth errors to friendly messages
+        function getFriendlyAuthMessage(error, context = 'login') {
+            const code = (error && (error.code || error.errorCode)) || '';
+            const defaultLoginMsg = 'Invalid email or password.';
+            const defaultSignupMsg = 'Unable to create account. Please try again.';
+            const networkMsg = 'Network issue. Please check your connection and try again.';
+            const throttledMsg = 'Too many attempts. Please try again later.';
+
+            switch (code) {
+                // Wrong credentials
+                case 'auth/invalid-credential':
+                case 'auth/wrong-password':
+                case 'auth/user-not-found':
+                case 'auth/invalid-email':
+                    return 'Invalid email or password.';
+                // Rate limiting / throttling
+                case 'auth/too-many-requests':
+                    return throttledMsg;
+                // Account / environment issues
+                case 'auth/user-disabled':
+                    return 'This account has been disabled. Please contact support.';
+                case 'auth/network-request-failed':
+                    return networkMsg;
+                case 'auth/operation-not-allowed':
+                    return 'Login is temporarily unavailable. Please try again later.';
+                case 'auth/popup-closed-by-user':
+                    return 'Sign-in was cancelled. Please try again.';
+                case 'auth/api-key-not-valid.please-pass-a-valid-api-key.':
+                case 'auth/invalid-api-key':
+                    return 'Login is temporarily unavailable. Please try again later.';
+                default:
+                    return context === 'signup' ? defaultSignupMsg : defaultLoginMsg;
+            }
+        }
+
         // Handle login form submission
         async function handleLogin(event) {
             event.preventDefault();
@@ -597,7 +632,8 @@
                         window.location.href = 'dashboard.html';
                     }, 1500);
                 } else {
-                    showError(error.message || 'Login failed. Please check your credentials.');
+                    const friendly = getFriendlyAuthMessage(error, 'login');
+                    showError(friendly);
                 }
             } finally {
                 hideLoading();
@@ -636,7 +672,8 @@
                 }
             } catch (error) {
                 console.error('Signup error:', error);
-                showError(error.message || 'Signup failed. Please try again.');
+                const friendly = getFriendlyAuthMessage(error, 'signup');
+                showError(friendly);
             } finally {
                 hideLoading();
             }
