@@ -1344,7 +1344,7 @@
             // Initial renders
             refreshScheduling();
             renderSectionView();
-            renderAlerts();
+            // Don't render alerts on page load - will be rendered when section is accessed
             // Live traffic is initialized when section is shown
             // Timers
             setInterval(updateLastUpdated, 30000); // Update every 30 seconds
@@ -1640,6 +1640,11 @@
             // Initialize Decision Panel when switching to Decision Panel
             if (sectionName === 'decision-panel') {
                 initDecisionPanel();
+            }
+            
+            // Initialize Alerts section when switching to Alerts
+            if (sectionName === 'alerts') {
+                initAlertsSection();
             }
             
             // Initialize Section View when switching to Section View
@@ -3737,23 +3742,54 @@
             }
         }
 
-        // ---------------- Alerts Render ----------------
+        // ---------------- Alerts Section ----------------
+        function initAlertsSection() {
+            renderAlerts();
+            updateAlertsTime();
+        }
+        
         function renderAlerts() {
-            document.getElementById('alerts-updated').textContent = new Date().toLocaleTimeString();
-            const container = document.getElementById('alerts-list');
-            container.innerHTML = mockAlerts.map(a => `
-                <div class="p-4 bg-gray-800 rounded-xl border-l-4 ${alertBorder(a.level)}">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <div class="font-semibold">${a.title}</div>
-                            <div class="text-xs text-gray-400">${a.time}</div>
+            try {
+                const container = document.getElementById('alerts-list');
+                if (!container) {
+                    console.error('Alerts container not found');
+                    return;
+                }
+                
+                if (!mockAlerts || mockAlerts.length === 0) {
+                    container.innerHTML = '<div class="text-center py-8 text-gray-400"><i class="fas fa-info-circle mb-2"></i><br>No active alerts</div>';
+                    return;
+                }
+                
+                container.innerHTML = mockAlerts.map(a => `
+                    <div class="p-4 bg-gray-800 rounded-xl border-l-4 ${alertBorder(a.level)}">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <div class="font-semibold">${a.title}</div>
+                                <div class="text-xs text-gray-400">${a.time}</div>
+                            </div>
+                            <span class="text-xs px-2 py-1 rounded ${severityBadge(a.level)}">${a.level}</span>
                         </div>
-                        <span class="text-xs px-2 py-1 rounded ${severityBadge(a.level)}">${a.level}</span>
+                        <div class="text-sm text-gray-300 mt-2">${a.detail}</div>
+                        <div class="text-sm text-blue-300 mt-1">Suggested: ${a.action}</div>
                     </div>
-                    <div class="text-sm text-gray-300 mt-2">${a.detail}</div>
-                    <div class="text-sm text-blue-300 mt-1">Suggested: ${a.action}</div>
-                </div>
-            `).join('');
+                `).join('');
+                
+                updateAlertsTime();
+            } catch (error) {
+                console.error('Error rendering alerts:', error);
+                const container = document.getElementById('alerts-list');
+                if (container) {
+                    container.innerHTML = '<div class="text-center py-8 text-red-400"><i class="fas fa-exclamation-triangle mb-2"></i><br>Error loading alerts</div>';
+                }
+            }
+        }
+        
+        function updateAlertsTime() {
+            const timeElement = document.getElementById('alerts-updated');
+            if (timeElement) {
+                timeElement.textContent = new Date().toLocaleTimeString();
+            }
         }
 
         function alertBorder(level) {
