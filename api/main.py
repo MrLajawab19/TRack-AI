@@ -2,19 +2,47 @@
 FastAPI main application for AI-Powered Train Traffic Control System
 """
 
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse
+from pydantic import BaseModel
 from typing import List, Dict, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
+import os
 import uvicorn
+
+from api.auth import (
+    authenticate_admin,
+    create_access_token,
+    get_current_user,
+    COOKIE_NAME,
+    EXPIRE_MINUTES,
+)
 
 from models.train import Train, TrainMovement, TrainConflict, TrainType, TrainPriority
 from models.infrastructure import RailwayNetwork, TrackSection, create_sample_network
-from optimization.scheduler import TrainScheduler, RealTimeOptimizer
+
+# The OR-Tools based scheduler is preferred, but it depends on a native library
+# that is not always loadable (missing wheel for the running Python version,
+# OS-level application control policies, etc.). Fall back to the pure-Python
+# heuristic scheduler, which exposes the same interface.
+try:
+    from optimization.scheduler import TrainScheduler, RealTimeOptimizer
+    OPTIMIZER_BACKEND = "ortools"
+except Exception as exc:  # pragma: no cover - depends on the environment
+    from optimization.simple_scheduler import (
+        SimpleTrainScheduler as TrainScheduler,
+        SimpleRealTimeOptimizer as RealTimeOptimizer,
+    )
+    OPTIMIZER_BACKEND = "heuristic"
+    print(f"[startup] OR-Tools unavailable ({exc}); using heuristic scheduler.")
+
 from api.irctc_service import irctc_service
 from api.mock_data import mock_trains
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -39,15 +67,99 @@ real_time_optimizer = RealTimeOptimizer(scheduler)
 active_trains: List[Train] = []
 current_schedule: Optional[Dict] = None
 
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Mount static files (the directory is optional in the MVP layout)
+_static_dir = os.path.join(BASE_DIR, "static")
+if os.path.isdir(_static_dir):
+    app.mount("/static", StaticFiles(directory=_static_dir), name="static")
+
+
+def _serve_page(filename: str) -> HTMLResponse:
+    """Read an HTML page from the project root and return it as a response."""
+    path = os.path.join(BASE_DIR, filename)
+    if not os.path.isfile(path):
+        raise HTTPException(status_code=404, detail=f"{filename} not found")
+    with open(path, "r", encoding="utf-8") as f:
+        return HTMLResponse(content=f.read())
 
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
-    """Serve the main dashboard"""
-    with open("index.html", "r") as f:
-        return HTMLResponse(content=f.read())
+    """Serve the landing page"""
+    return _serve_page("index.html")
+
+
+@app.get("/auth.html", response_class=HTMLResponse)
+async def read_auth():
+    """Serve the authentication page (public — no auth required)"""
+    return _serve_page("auth.html")
+
+
+@app.get("/dashboard.html")
+async def read_dashboard(user: dict = Depends(get_current_user)):
+    """
+    Serve the controller dashboard.
+    Protected: redirects to /auth.html with 302 if no valid session cookie.
+    """
+    return _serve_page("dashboard.html")
+
+
+# ── Authentication Endpoints ───────────────────────────────────────────────────
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+@app.post("/api/login")
+async def login(credentials: LoginRequest, response: Response):
+    """
+    Validate email + password against the single admin account.
+    On success: set an httpOnly session cookie and return user info.
+    On failure: return HTTP 401 — never reveal which field was wrong.
+    """
+    if not authenticate_admin(credentials.email, credentials.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password.",
+        )
+
+    token = create_access_token(data={"sub": credentials.email.strip().lower()})
+
+    # httpOnly prevents JS from reading the cookie; SameSite=Lax blocks CSRF
+    response.set_cookie(
+        key=COOKIE_NAME,
+        value=token,
+        httponly=True,
+        samesite="lax",
+        max_age=EXPIRE_MINUTES * 60,
+        path="/",
+    )
+    return {"status": "ok", "email": credentials.email.strip().lower()}
+
+
+@app.post("/api/logout")
+async def logout(response: Response):
+    """Clear the session cookie, effectively logging the user out."""
+    response.delete_cookie(key=COOKIE_NAME, path="/")
+    return {"status": "ok"}
+
+
+@app.get("/api/me")
+async def get_me(user: dict = Depends(get_current_user)):
+    """
+    Return the currently authenticated user.
+    The dashboard calls this on load to verify the session is still valid.
+    """
+    return {"email": user["email"], "role": "admin"}
+
+
+@app.get("/delhi-kanpur-railway.geojson")
+async def read_geojson():
+    """Serve the railway route geometry used by the live map"""
+    path = os.path.join(BASE_DIR, "delhi-kanpur-railway.geojson")
+    if not os.path.isfile(path):
+        raise HTTPException(status_code=404, detail="GeoJSON not found")
+    return FileResponse(path, media_type="application/geo+json")
 
 
 @app.get("/api/health")
@@ -56,14 +168,16 @@ async def health_check():
     return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "optimizer_backend": OPTIMIZER_BACKEND
     }
+
 
 
 # Train Management Endpoints
 
 @app.post("/api/trains", response_model=Dict)
-async def create_train(train: Train):
+async def create_train(train: Train, _user: dict = Depends(get_current_user)):
     """Create a new train in the system"""
     try:
         # Check if train already exists
@@ -88,13 +202,13 @@ async def create_train(train: Train):
 
 
 @app.get("/api/trains", response_model=List[Train])
-async def get_trains():
+async def get_trains(_user: dict = Depends(get_current_user)):
     """Get all active trains"""
     return active_trains
 
 
 @app.get("/api/trains/{train_id}", response_model=Train)
-async def get_train(train_id: str):
+async def get_train(train_id: str, _user: dict = Depends(get_current_user)):
     """Get specific train by ID"""
     train = next((t for t in active_trains if t.train_id == train_id), None)
     if not train:
@@ -103,7 +217,7 @@ async def get_train(train_id: str):
 
 
 @app.put("/api/trains/{train_id}", response_model=Dict)
-async def update_train(train_id: str, train_update: Train):
+async def update_train(train_id: str, train_update: Train, _user: dict = Depends(get_current_user)):
     """Update train information"""
     try:
         train_index = next((i for i, t in enumerate(active_trains) if t.train_id == train_id), None)
@@ -121,7 +235,7 @@ async def update_train(train_id: str, train_update: Train):
 
 
 @app.delete("/api/trains/{train_id}", response_model=Dict)
-async def delete_train(train_id: str):
+async def delete_train(train_id: str, _user: dict = Depends(get_current_user)):
     """Remove train from system"""
     try:
         train_index = next((i for i, t in enumerate(active_trains) if t.train_id == train_id), None)
@@ -204,7 +318,7 @@ async def get_cache_stats():
 # Scheduling and Optimization Endpoints
 
 @app.post("/api/optimize", response_model=Dict)
-async def optimize_schedule(time_horizon: int = 24):
+async def optimize_schedule(time_horizon: int = 24, _user: dict = Depends(get_current_user)):
     """Optimize train schedule"""
     try:
         global current_schedule
@@ -225,7 +339,7 @@ async def optimize_schedule(time_horizon: int = 24):
 
 
 @app.get("/api/schedule", response_model=Dict)
-async def get_current_schedule():
+async def get_current_schedule(_user: dict = Depends(get_current_user)):
     """Get current optimized schedule"""
     if not current_schedule:
         return {
@@ -241,7 +355,7 @@ async def get_current_schedule():
 
 
 @app.post("/api/conflicts/detect", response_model=List[TrainConflict])
-async def detect_conflicts():
+async def detect_conflicts(_user: dict = Depends(get_current_user)):
     """Detect conflicts between trains"""
     try:
         conflicts = scheduler.detect_conflicts(active_trains)
@@ -251,7 +365,7 @@ async def detect_conflicts():
 
 
 @app.post("/api/conflicts/resolve", response_model=List[Dict])
-async def resolve_conflicts():
+async def resolve_conflicts(_user: dict = Depends(get_current_user)):
     """Get conflict resolution recommendations"""
     try:
         conflicts = scheduler.detect_conflicts(active_trains)
@@ -264,7 +378,7 @@ async def resolve_conflicts():
 # Real-time Updates
 
 @app.post("/api/realtime/update", response_model=Dict)
-async def update_realtime(disruptions: List[Dict] = None):
+async def update_realtime(disruptions: List[Dict] = None, _user: dict = Depends(get_current_user)):
     """Update schedule with real-time information"""
     try:
         global current_schedule
@@ -284,7 +398,7 @@ async def update_realtime(disruptions: List[Dict] = None):
 # Infrastructure Endpoints
 
 @app.get("/api/network", response_model=Dict)
-async def get_network_info():
+async def get_network_info(_user: dict = Depends(get_current_user)):
     """Get railway network information"""
     return {
         "network_id": railway_network.network_id,
@@ -296,7 +410,7 @@ async def get_network_info():
 
 
 @app.get("/api/sections", response_model=List[Dict])
-async def get_sections():
+async def get_sections(_user: dict = Depends(get_current_user)):
     """Get all track sections"""
     sections_list = []
     for section_id, section in railway_network.sections.items():
@@ -313,7 +427,7 @@ async def get_sections():
 
 
 @app.get("/api/sections/{section_id}/status", response_model=Dict)
-async def get_section_status(section_id: str):
+async def get_section_status(section_id: str, _user: dict = Depends(get_current_user)):
     """Get specific section status"""
     if section_id not in railway_network.sections:
         raise HTTPException(status_code=404, detail="Section not found")
@@ -331,7 +445,7 @@ async def get_section_status(section_id: str):
 # Analytics and Metrics
 
 @app.get("/api/metrics", response_model=Dict)
-async def get_system_metrics():
+async def get_system_metrics(_user: dict = Depends(get_current_user)):
     """Get system performance metrics"""
     try:
         total_trains = len(active_trains)
@@ -368,7 +482,7 @@ async def get_system_metrics():
 # Simulation Endpoints
 
 @app.post("/api/simulate", response_model=Dict)
-async def run_simulation(scenario: Dict):
+async def run_simulation(scenario: Dict, _user: dict = Depends(get_current_user)):
     """Run what-if simulation"""
     try:
         # This is a simplified simulation for MVP
@@ -402,7 +516,7 @@ async def run_simulation(scenario: Dict):
 
 # Sample data creation for testing
 @app.post("/api/sample-data", response_model=Dict)
-async def create_sample_data():
+async def create_sample_data(_user: dict = Depends(get_current_user)):
     """Create sample trains for testing"""
     try:
         global active_trains

@@ -182,12 +182,12 @@ python simple_server.py
 ## 📱 Application URLs
 
 - **Landing Page:** `index.html` - Public interface, train status
-- **Authentication:** `auth.html` - Login/Signup with Firebase
-- **Dashboard:** `dashboard.html` - Admin traffic control interface
+- **Authentication:** `auth.html` - Login backed by server-side JWT auth (`/api/login`)
+- **Dashboard:** `dashboard.html` - Admin traffic control interface (requires valid session)
 
-**Demo Credentials:**
-- Email: `admin@example.com`
-- Password: `password123`
+**Admin Login:** Credentials are stored as a bcrypt hash in `.env` (see `ADMIN_EMAIL` / `ADMIN_PASSWORD_HASH`).
+Never stored in source code. Set credentials by hashing a password with bcrypt and placing the hash in `.env`.
+
 
 ---
 
@@ -314,9 +314,7 @@ A. Bardhani et al., "AI-Powered Train Traffic Control System," 2025.
 
 - [ ] Backend server running (`uvicorn api.main:app --reload`)
 - [ ] Frontend server running (`python simple_server.py`)
-- [ ] Firebase configured (check `auth.html`)
-- [ ] RAPIDAPI_KEY set in `.env`
-- [ ] Demo account ready (admin@example.com / password123)
+- [ ] Admin credentials set in `.env` (ADMIN_EMAIL + ADMIN_PASSWORD_HASH)
 - [ ] Sample trains showing on map
 - [ ] AI recommendations displaying
 - [ ] Backup video prepared (if live demo fails)

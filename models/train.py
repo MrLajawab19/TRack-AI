@@ -122,13 +122,16 @@ def calculate_priority_score(train: Train) -> float:
     base_score = float(train.priority.value)
     
     # Adjust for train type
+    # NOTE: TrainType has no EMERGENCY member - urgency is expressed through
+    # TrainPriority.EMERGENCY. SPECIAL is the highest-weighted train type.
     type_multipliers = {
-        TrainType.EMERGENCY: 2.0,
+        TrainType.SPECIAL: 2.0,
         TrainType.EXPRESS: 1.5,
         TrainType.LOCAL: 1.0,
         TrainType.FREIGHT: 0.8,
         TrainType.MAINTENANCE: 0.5
     }
+
     
     type_multiplier = type_multipliers.get(train.train_type, 1.0)
     

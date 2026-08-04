@@ -20,7 +20,31 @@ class TrainScheduler:
         self.network = network
         self.model = None
         self.solver = None
-        
+        self.status = None
+
+    def _solver_wall_time(self) -> float:
+        """Wall clock time of the last solve, across OR-Tools versions."""
+        wall_time = getattr(self.solver, "wall_time", None)
+        if isinstance(wall_time, (int, float)):
+            return float(wall_time)
+        try:
+            return float(self.solver.WallTime())
+        except Exception:
+            return 0.0
+
+    def _solver_status_name(self) -> str:
+        """Human readable status of the last solve, across OR-Tools versions."""
+        if self.status is None:
+            return "UNKNOWN"
+        name = getattr(self.status, "name", None)
+        if name:
+            return str(name)
+        try:
+            return str(self.solver.StatusName(self.status))
+        except Exception:
+            return str(self.status)
+
+
     def optimize_schedule(self, trains: List[Train], time_horizon_hours: int = 24) -> Dict:
         """
         Optimize train schedule to maximize throughput and minimize delays
@@ -127,6 +151,7 @@ class TrainScheduler:
         self.solver.parameters.max_time_in_seconds = 30.0  # 30 second time limit for MVP
         
         status = self.solver.Solve(self.model)
+        self.status = status
         
         # Process results
         if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
@@ -137,8 +162,14 @@ class TrainScheduler:
                 'message': 'No feasible schedule found',
                 'trains': [],
                 'conflicts': [],
-                'metrics': {}
+                'metrics': {
+                    'total_trains': len(trains),
+                    'scheduled_trains': 0,
+                    'optimization_time': self._solver_wall_time(),
+                    'solver_status': self._solver_status_name()
+                }
             }
+
     
     def detect_conflicts(self, trains: List[Train]) -> List[TrainConflict]:
         """
@@ -303,9 +334,10 @@ class TrainScheduler:
             'total_trains': len(trains),
             'scheduled_trains': completed_trains,
             'average_delay': total_delay / max(completed_trains, 1),
-            'optimization_time': self.solver.WallTime(),
-            'solver_status': self.solver.StatusName()
+            'optimization_time': self._solver_wall_time(),
+            'solver_status': self._solver_status_name()
         }
+
         
         return solution
 

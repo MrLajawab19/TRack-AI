@@ -78,6 +78,37 @@
         </style>
 </head>
 <body class="bg-gray-900 text-white">
+    <!--
+        Session guard: runs BEFORE any content is shown.
+        Calls /api/me — if the server returns 401 (no valid cookie),
+        we redirect to /auth.html immediately.
+        This is a belt-and-suspenders check; the primary guard is the
+        server route Depends(get_current_user) in api/main.py which
+        already blocks unauthenticated requests to /dashboard.html.
+    -->
+    <script>
+        (function () {
+            'use strict';
+            fetch('/api/me', { credentials: 'same-origin' })
+                .then(function (res) {
+                    if (!res.ok) {
+                        window.location.replace('/auth.html?expired=1');
+                    } else {
+                        return res.json();
+                    }
+                })
+                .then(function (data) {
+                    if (data && data.email) {
+                        // Populate the sidebar user display once we have the email
+                        var el = document.getElementById('sidebar-user-email');
+                        if (el) el.textContent = data.email;
+                    }
+                })
+                .catch(function () {
+                    window.location.replace('/auth.html?expired=1');
+                });
+        })();
+    </script>
     <!-- Navigation Sidebar -->
     <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-gray-800 border-r border-gray-700 sidebar-transition z-50">
         <div class="p-6">
@@ -133,7 +164,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-medium">Traffic Controller</p>
-                    <p class="text-xs text-gray-400">admin@example.com</p>
+                    <p class="text-xs text-gray-400" id="sidebar-user-email">loading...</p>
                 </div>
             </div>
         </div>
@@ -4060,12 +4091,19 @@
             }
         }
 
-        // Logout function
-        function logout() {
+        // Logout: call the server to clear the httpOnly cookie, then redirect
+        async function logout() {
             if (confirm('Are you sure you want to logout?')) {
-                // Clear session storage
-                sessionStorage.clear();
-                window.location.href = 'auth.html';
+                try {
+                    await fetch('/api/logout', {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                    });
+                } catch (_) {
+                    // Even if the request fails, redirect — the server cookie
+                    // will expire naturally and the session guard will catch it.
+                }
+                window.location.href = '/auth.html';
             }
         }
     </script>
