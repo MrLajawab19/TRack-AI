@@ -24,10 +24,21 @@ build/
 .vscode/
 .idea/
 
-# Logs
+# Logs — both .log and .err suffixes (uvicorn redirected output)
 *.log
-_server.log
 _server.err
+
+# Node / JS tooling
+node_modules/
+dist/
+.vite/
+
+# Binary build artifacts (keep source .tex, not compiled output)
+*.pdf
+
+# Office documents (should not be in a code repo)
+*.docx
+*.xlsx
 
 # OS
 .DS_Store

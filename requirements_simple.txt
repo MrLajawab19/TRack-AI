@@ -1,6 +1,0 @@
-# Simplified requirements for MVP testing
-fastapi
-uvicorn
-pydantic
-python-multipart
-jinja2

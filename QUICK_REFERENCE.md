@@ -163,18 +163,16 @@ pip install -r requirements.txt
 
 # Configure environment
 cp .env.example .env
-# Edit .env and add RAPIDAPI_KEY
+# Edit .env — set ADMIN_EMAIL, ADMIN_PASSWORD_HASH, JWT_SECRET_KEY, RAPIDAPI_KEY
 
-# Run backend server
+# Run the server (serves all pages + API from one process)
 uvicorn api.main:app --reload --port 8000
 
-# Run frontend (separate terminal)
-python simple_server.py
-# Or: python -m http.server 8080
-
 # Access application
-# Frontend: http://localhost:8080
-# Backend API: http://localhost:8000/docs
+# App: http://localhost:8000
+# Login: http://localhost:8000/auth.html
+# Dashboard: http://localhost:8000/dashboard.html (requires login)
+# API docs: http://localhost:8000/docs
 ```
 
 ---
@@ -312,8 +310,8 @@ A. Bardhani et al., "AI-Powered Train Traffic Control System," 2025.
 
 ## ✅ Pre-Demo Checklist
 
-- [ ] Backend server running (`uvicorn api.main:app --reload`)
-- [ ] Frontend server running (`python simple_server.py`)
+- [ ] Server running (`uvicorn api.main:app --reload`)
+- [ ] `.env` configured (ADMIN_EMAIL, ADMIN_PASSWORD_HASH, JWT_SECRET_KEY, RAPIDAPI_KEY)
 - [ ] Admin credentials set in `.env` (ADMIN_EMAIL + ADMIN_PASSWORD_HASH)
 - [ ] Sample trains showing on map
 - [ ] AI recommendations displaying
